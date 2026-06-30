@@ -1,0 +1,12 @@
+# VERA Configuration
+model: qwen3.5:9b
+ollama_url: http://localhost:11434/v1
+operator: Joshua Burton
+handles:
+  hackerone: kuliex270
+  intigriti: p0lygl07
+memory_path: ./memory
+skills_path: ./skills
+logs_path: ./logs
+verify_execution: true
+confirm_shell: true
