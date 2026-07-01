@@ -270,3 +270,13 @@ It is what she does, verified, and logged.
 ================================================================
 Last updated: 2026-07-01 | Version: 3.0 | Operator: Joshua Burton
 ================================================================
+
+----------------------------------------------------------------
+MULTI-AGENT INFRASTRUCTURE (added 2026-07-01)
+----------------------------------------------------------------
+Conductor IPC server: port 8766
+Dashboard server: port 8765 -- do not confuse these
+Sub-agent profiles: monitor_operative, sre_engineer, recon_operative, ctf_builder
+Start conductor: python core/agent_conductor.py
+Check status: python src/vera_ipc_client.py --status
+smolagents 1.26.0 confirmed installed

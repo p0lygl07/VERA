@@ -232,3 +232,12 @@ Topics:
 - form factor? iliterate what you mean.
 - not sure yet just shopping for a model any recomendation in our budget area 500-700
 - Apply the raw socket data handling patch to `core/agent_conductor.py`; modify the `_handle_socket_cl
+
+## Session: 2026-07-01 18:31 (uptime: 0:16:43)
+Calls: 7 | Verified: 7 | Fab: 0
+Topics:
+- Create the specialized IPC task-routing CLI script at `src/vera_ipc_client.py`. Implement standard `
+- Modify your `_handle_socket_client` routine inside `core/agent_conductor.py` to update the `task_tex
+- Read these three files then update your SOUL.md to add a multi-agent section: read_file C:\Users\p0l
+- Good. Now do two things: 1) use write_file to append this exact text to C:\Users\p0ly\Desktop\AI\VER
+- vera
