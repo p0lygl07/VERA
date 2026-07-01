@@ -1,17 +1,10 @@
 #!/usr/bin/env python3
 """
-VERA Voice Interface v3
-Full duplex voice conversation with VERA.
-Wake word: "Hey VERA"
-Voice: en-GB-SoniaNeural (British female)
-STT: faster-whisper (local, private)
-
-Usage:
-  python src/vera_voice.py              # full voice conversation mode
-  python src/vera_voice.py test         # test TTS
-  python src/vera_voice.py speak <text> # speak one phrase
-  python src/vera_voice.py listen       # test microphone
-  python src/vera_voice.py alert        # speak latest briefing
+VERA Voice Interface v3.3
+Fixes:
+- Strip punctuation from transcribed text before wake word matching
+- When wake word detected with no inline command, go straight to listening
+- Pre-loaded whisper, 1.5s burst, 90s playback timeout
 """
 
 import sys
@@ -22,24 +15,27 @@ import time
 import json
 import subprocess
 import threading
-import queue
+import string
 from pathlib import Path
 
 VERA_ROOT  = Path(__file__).parent.parent
 VOICE      = "en-GB-SoniaNeural"
 RATE       = "+5%"
 VOLUME     = "+0%"
-WAKE_WORDS = ["hey vera", "hey, vera", "vera", "ok vera"]
+WAKE_WORDS = ["hey vera", "hey vera", "vera", "ok vera"]
 STT_MODEL  = "base"
 OLLAMA_URL = "http://localhost:11434/api/chat"
 MODEL      = "qwen3.5:9b"
 PYTHON     = r"C:\Users\p0ly\AppData\Local\Programs\Python\Python311\python.exe"
 
-# Shared speaking state — prevents listening while speaking
 _is_speaking = threading.Event()
 
 
-# ── TTS ───────────────────────────────────────────────────────────────────────
+def clean_text(text):
+    """Strip punctuation and normalize whitespace for matching."""
+    return text.translate(str.maketrans("", "", string.punctuation)).strip().lower()
+
+
 async def _speak_async(text):
     import edge_tts
     communicate = edge_tts.Communicate(text, VOICE, rate=RATE, volume=VOLUME)
@@ -48,7 +44,7 @@ async def _speak_async(text):
     try:
         await communicate.save(tmp_path)
         file_size = os.path.getsize(tmp_path)
-        duration_ms = max(1500, int(file_size / 4))
+        duration_ms = max(1500, int(file_size / 6))
         ps_script = (
             f"Add-Type -AssemblyName presentationCore; "
             f"$mp = New-Object System.Windows.Media.MediaPlayer; "
@@ -59,8 +55,10 @@ async def _speak_async(text):
         )
         subprocess.run(
             ["powershell", "-NoProfile", "-NonInteractive", "-Command", ps_script],
-            timeout=30
+            timeout=90
         )
+    except subprocess.TimeoutExpired:
+        print("[VERA VOICE] Playback timeout -- audio may have played partially")
     except Exception as e:
         print(f"[VERA VOICE] Playback error: {e}")
     finally:
@@ -73,7 +71,6 @@ async def _speak_async(text):
 
 
 def speak(text):
-    """Speak text aloud. Blocks until complete."""
     if not text or not text.strip():
         return
     _is_speaking.set()
@@ -86,7 +83,6 @@ def speak(text):
         _is_speaking.clear()
 
 
-# ── STT ───────────────────────────────────────────────────────────────────────
 _whisper_model = None
 
 
@@ -101,11 +97,7 @@ def load_whisper():
 
 
 def record_audio(duration=5, samplerate=16000):
-    """Record audio from microphone."""
     import sounddevice as sd
-    import soundfile as sf
-    import numpy as np
-
     audio = sd.rec(
         int(duration * samplerate),
         samplerate=samplerate,
@@ -117,15 +109,13 @@ def record_audio(duration=5, samplerate=16000):
 
 
 def transcribe_audio(audio, samplerate=16000):
-    """Transcribe audio using faster-whisper."""
     import soundfile as sf
-
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
         tmp_path = tmp.name
     try:
         sf.write(tmp_path, audio, samplerate)
         model = load_whisper()
-        segments, info = model.transcribe(tmp_path, language="en", vad_filter=True)
+        segments, _ = model.transcribe(tmp_path, language="en", vad_filter=True)
         text = " ".join(seg.text.strip() for seg in segments).strip()
         return text.lower()
     except Exception as e:
@@ -139,7 +129,6 @@ def transcribe_audio(audio, samplerate=16000):
 
 
 def listen(duration=5):
-    """Record and transcribe speech."""
     try:
         print(f"[VERA VOICE] Listening ({duration}s)...")
         audio, sr = record_audio(duration)
@@ -157,54 +146,48 @@ def listen(duration=5):
 
 def listen_for_wake_word():
     """
-    Continuously listen in short bursts for wake word.
-    Returns the full utterance after the wake word if detected.
+    Listen in 1.5s bursts for wake word.
+    Returns inline command string if command followed wake word,
+    or None if wake word was spoken alone (caller should then listen).
     """
-    import sounddevice as sd
-
-    print(f"[VERA VOICE] Waiting for wake word ({' / '.join(WAKE_WORDS)})...")
-
+    print(f"[VERA VOICE] Waiting for wake word ({' / '.join(set(WAKE_WORDS))})...")
     while True:
-        # Don't listen while speaking
         if _is_speaking.is_set():
             time.sleep(0.1)
             continue
-
         try:
-            # Short burst listening for wake word
-            audio, sr = record_audio(duration=2)
-            text = transcribe_audio(audio, sr)
-
-            if not text:
+            audio, sr = record_audio(duration=1.5)
+            raw_text = transcribe_audio(audio, sr)
+            if not raw_text:
                 continue
 
-            # Check for wake word
-            wake_detected = any(w in text for w in WAKE_WORDS)
+            # Clean punctuation for matching
+            cleaned = clean_text(raw_text)
+
+            wake_detected = any(w in cleaned for w in WAKE_WORDS)
             if wake_detected:
-                print(f"[VERA VOICE] Wake word detected in: '{text}'")
+                print(f"[VERA VOICE] Wake word detected: '{raw_text}'")
 
-                # Extract any command that followed the wake word
-                command_after = text
+                # Try to extract inline command after wake word
                 for w in WAKE_WORDS:
-                    if w in command_after:
-                        parts = command_after.split(w, 1)
-                        if len(parts) > 1 and parts[1].strip():
-                            command_after = parts[1].strip()
-                            return command_after  # command was in same utterance
+                    if w in cleaned:
+                        parts = cleaned.split(w, 1)
+                        if len(parts) > 1:
+                            inline = parts[1].strip()
+                            if inline and len(inline) > 1:
+                                print(f"[VERA VOICE] Inline command: '{inline}'")
+                                return inline
 
-                # Wake word only — listen for the command
-                return None  # Signal: heard wake word, need command
+                # Wake word only -- no inline command
+                return None
 
         except Exception as e:
-            print(f"[VERA VOICE] Wake word listen error: {e}")
+            print(f"[VERA VOICE] Wake word error: {e}")
             time.sleep(0.5)
 
 
-# ── VERA reasoning ────────────────────────────────────────────────────────────
 def ask_vera(command, messages, speak_response=True):
-    """Send a command to VERA's reasoning engine and get a response."""
     import requests
-
     messages.append({"role": "user", "content": command})
     try:
         payload = {
@@ -217,19 +200,12 @@ def ask_vera(command, messages, speak_response=True):
         resp.raise_for_status()
         response = resp.json()["message"]["content"]
         messages.append({"role": "assistant", "content": response})
-
         if speak_response:
-            # Truncate for speech — speak first 2-3 sentences
-            sentences = response.replace("**", "").replace("*", "").replace("#", "")
-            # Remove markdown
-            clean = " ".join(sentences.split())
-            # Take first 300 chars max for voice
+            clean = response.replace("**", "").replace("*", "").replace("#", "")
+            clean = " ".join(clean.split())
             if len(clean) > 300:
-                truncated = clean[:280].rsplit(" ", 1)[0]
-                speak(truncated + ".")
-            else:
-                speak(clean)
-
+                clean = clean[:280].rsplit(" ", 1)[0] + "."
+            speak(clean)
         return response, messages
     except Exception as e:
         error_msg = "I'm having trouble reaching my reasoning engine."
@@ -239,10 +215,7 @@ def ask_vera(command, messages, speak_response=True):
         return error_msg, messages
 
 
-# ── Voice conversation loop ───────────────────────────────────────────────────
 def voice_conversation_loop():
-    """Full JARVIS-style voice conversation."""
-    # Build system context
     soul_path = VERA_ROOT / "memory" / "SOUL.md"
     user_path = VERA_ROOT / "memory" / "USER.md"
     briefing_path = VERA_ROOT / "memory" / "latest_briefing.md"
@@ -253,23 +226,28 @@ def voice_conversation_loop():
     if user_path.exists():
         system_parts.append(user_path.read_text(encoding="utf-8"))
     system_parts.append(
-        "VOICE MODE ACTIVE. Critical rules for voice:\n"
+        "VOICE MODE ACTIVE.\n"
         "- Keep ALL responses to 1-3 short sentences maximum\n"
         "- No markdown, no bullet points, no lists, no headers\n"
         "- Natural British spoken English only\n"
-        "- Be curious and decisive — ask one follow-up question when relevant\n"
-        "- If you need more info, ask directly in one sentence\n"
-        "- When uncertain, make a decision and state your reasoning briefly"
+        "- Be curious and decisive -- one follow-up question max\n"
+        "- Make decisions, don't hedge endlessly\n"
+        "- When uncertain, choose and explain in one sentence"
     )
 
     system_prompt = "\n\n".join(system_parts)
     messages = [{"role": "system", "content": system_prompt}]
 
     print("=" * 60)
-    print("VERA Voice Mode v3")
-    print(f"Wake words: {', '.join(WAKE_WORDS)}")
+    print("VERA Voice Mode v3.3")
+    print(f"Wake words: hey vera / vera / ok vera")
     print("Say 'goodbye vera' to exit")
     print("=" * 60)
+
+    # Pre-load whisper to eliminate first-use latency
+    print("[VERA VOICE] Pre-loading speech model...")
+    load_whisper()
+    print("[VERA VOICE] Ready -- say 'Hey VERA' to begin.")
 
     # Proactive startup briefing
     if briefing_path.exists():
@@ -278,10 +256,9 @@ def voice_conversation_loop():
                 if l.strip() and not l.startswith("#") and len(l.strip()) > 20]
         if lines:
             time.sleep(0.5)
-            speak("I have a project update for you.")
+            speak("I have a project update.")
             time.sleep(0.3)
-            brief_text = lines[0][:200]
-            speak(brief_text)
+            speak(lines[0][:200])
             time.sleep(0.5)
 
     consecutive_errors = 0
@@ -292,42 +269,45 @@ def voice_conversation_loop():
             command_inline = listen_for_wake_word()
 
             if command_inline is None:
-                # Wake word heard, need to listen for command
+                # Wake word only -- listen for command
                 speak("Yes?")
                 command = listen(duration=7)
             else:
-                # Command was in the same utterance as wake word
+                # Command came with wake word
                 command = command_inline
-                print(f"[VERA VOICE] Inline command: '{command}'")
 
-            if not command or len(command.strip()) < 2:
-                speak("I didn't catch that.")
+            # Skip if nothing heard
+            if not command or len(clean_text(command)) < 2:
+                # Don't say "I didn't catch that" for punctuation-only responses
                 consecutive_errors += 1
-                if consecutive_errors > 3:
+                if consecutive_errors > 4:
                     speak("Having trouble hearing you. Check your microphone.")
                     consecutive_errors = 0
                 continue
 
             consecutive_errors = 0
+            command_clean = clean_text(command)
 
             # Exit commands
-            if any(w in command for w in ["goodbye", "bye vera", "exit vera",
-                                           "shutdown", "stop vera", "power off"]):
+            if any(w in command_clean for w in ["goodbye", "bye vera",
+                                                  "exit vera", "shutdown",
+                                                  "stop vera", "power off"]):
                 speak("Goodbye Josh. VERA standing by.")
                 break
 
             # Quiet mode
-            if any(w in command for w in ["quiet mode", "be quiet", "mute", "silence"]):
+            if any(w in command_clean for w in ["quiet mode", "be quiet",
+                                                  "mute", "silence"]):
                 speak("Going quiet.")
-                # Keep listening but stop speaking
                 while True:
                     cmd = listen(duration=3)
-                    if any(w in cmd for w in ["voice on", "unmute", "speak again"]):
+                    if any(w in clean_text(cmd) for w in ["voice on", "unmute",
+                                                            "speak again"]):
                         speak("Voice restored.")
                         break
                 continue
 
-            # Process command
+            # Process command through VERA
             response, messages = ask_vera(command, messages)
 
         except KeyboardInterrupt:
@@ -340,14 +320,13 @@ def voice_conversation_loop():
             time.sleep(1)
 
 
-# ── Entry point ───────────────────────────────────────────────────────────────
 def main():
     if len(sys.argv) >= 2:
         cmd = sys.argv[1].lower()
 
         if cmd == "test":
             print("Testing VERA voice (en-GB-SoniaNeural)...")
-            speak("Hello Josh. VERA voice is online. I am ready and listening.")
+            speak("Hello Josh. VERA voice is online and ready.")
             print("Voice test complete.")
 
         elif cmd == "speak" and len(sys.argv) >= 3:
@@ -363,7 +342,8 @@ def main():
             if briefing_path.exists():
                 content = briefing_path.read_text(encoding="utf-8")
                 lines = [l.strip() for l in content.split("\n")
-                        if l.strip() and not l.startswith("#") and len(l.strip()) > 20]
+                        if l.strip() and not l.startswith("#")
+                        and len(l.strip()) > 20]
                 if lines:
                     speak(lines[0][:250])
                 else:
@@ -372,17 +352,18 @@ def main():
                 speak("No briefing available.")
 
         elif cmd == "wake":
-            print("Testing wake word detection (30s timeout)...")
+            print("Testing wake word detection...")
             load_whisper()
             result = listen(duration=4)
-            if any(w in result for w in WAKE_WORDS):
+            cleaned = clean_text(result)
+            if any(w in cleaned for w in WAKE_WORDS):
                 speak("Wake word confirmed. I heard you.")
             else:
-                print(f"Heard: '{result}' — no wake word detected")
+                print(f"Heard: '{result}' -- no wake word detected")
 
         else:
             print("Commands: test | speak <text> | listen | alert | wake")
-            print("Or run with no args for full voice conversation mode")
+            print("No args = full voice conversation mode")
     else:
         voice_conversation_loop()
 
