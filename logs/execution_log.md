@@ -168,3 +168,5 @@
 | 2026-07-01 | shell_command | YES | success | command produced 97 chars of output |
 | 2026-07-01 | session_memory | YES | saved | 7 messages |
 | 2026-07-01 | shell_command | YES | success | command produced 580 chars of output |
+| 2026-07-01 | read_skill | YES | success | skill: bug-bounty-recon |
+| 2026-07-01 | read_file | YES | success | read 12050 chars |

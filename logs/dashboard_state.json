@@ -1,16 +1,16 @@
 {
-  "timestamp": "2026-07-01T12:39:40.504426",
+  "timestamp": "2026-07-01T12:49:12.835393",
   "status": "READY",
   "active_role": "ORACLE",
   "truth_layer": "T3",
-  "thinking": "File created at `C:\\Users\\p0ly\\Desktop\\test_vera.txt`. [VERA VERIFIED]",
+  "thinking": "",
   "tool_call": "",
-  "uptime": "0:00:26",
-  "total_calls": 1,
-  "verified_calls": 1,
+  "uptime": "0:09:58",
+  "total_calls": 3,
+  "verified_calls": 3,
   "fabricated_calls": 0,
   "fabrication_rate": "0.0%",
-  "avg_inference_ms": "7672ms",
+  "avg_inference_ms": "9783ms",
   "model": "qwen3.5:9b",
   "voice_enabled": true
 }
