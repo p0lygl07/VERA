@@ -158,3 +158,13 @@
 | 2026-07-01 | session_memory | YES | saved | 12 messages |
 | 2026-07-01 | system_info | YES | success | system info retrieved |
 | 2026-07-01 | list_processes | YES | success | listed 288 processes |
+| 2026-07-01 | list_directory | NO | not_found | path: /home/joshua |
+| 2026-07-01 | list_directory | YES | success | listed 22 entries |
+| 2026-07-01 | list_directory | YES | success | listed 7 entries |
+| 2026-07-01 | list_directory | YES | success | listed 64 entries |
+| 2026-07-01 | list_directory | NO | not_found | path: /Users/p0ly/AppData/Local/.vera |
+| 2026-07-01 | list_directory | YES | success | listed 28 entries |
+| 2026-07-01 | file_write | YES | success | verified /Users/p0ly/Documents/dashboard_state.json exists with 992 bytes |
+| 2026-07-01 | shell_command | YES | success | command produced 97 chars of output |
+| 2026-07-01 | session_memory | YES | saved | 7 messages |
+| 2026-07-01 | shell_command | YES | success | command produced 580 chars of output |

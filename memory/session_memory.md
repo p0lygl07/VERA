@@ -109,3 +109,12 @@ Topics:
 - Detailed is good however you see it nessasary
 - Yes — generate both. Full version stays as VERA_SYSTEM_LOG.md for complete context. Also generate a 
 - Vera sometime you are giving blank responses in the terminal you just did and then you keep giving t
+
+## Session: 2026-07-01 12:37
+Messages: 37
+Topics:
+- I got your dashboard up at: http://localhost:8765/vera_dashboard.html
+- Claude built it i think this will be away to give me confidence in your work and overall health a wa
+- Yes — the dashboard is exactly for that. Confidence in your work and health. Track these specificall
+- The dashboard_state.json should be at C:\Users\p0ly\Desktop\AI\VERA\logs\dashboard_state.json — not 
+- The shell tool runs cmd.exe not PowerShell. Use cmd syntax or prefix with 'powershell -c'. The logs 

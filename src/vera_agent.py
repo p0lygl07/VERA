@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """
 VERA -- Verified Execution Reasoning Agent v0.6
-
-Fixes in this version:
-- Output flush fix (text always appears before voice fires)
-- Literal Windows paths only (no $HOME variables)
-- Truth layer declared per response
-- Dashboard state writer (VERA writes thinking to dashboard-readable file)
-- Fabrication rate tracking
-- Session uptime tracking
+Fixes:
+- Shell tool always uses PowerShell (not cmd.exe)
+- $HOME/~ path auto-resolution to Windows paths
+- Output flush before voice fires
+- Truth layer tracking
+- Dashboard state writer
+- Session uptime + fabrication rate metrics
 """
 
 import json
@@ -19,8 +18,7 @@ import requests
 import datetime
 from pathlib import Path
 
-# ── Config ────────────────────────────────────────────────────────────────────
-VERA_ROOT    = Path(__file__).parent.parent
+VERA_ROOT    = Path("C:/Users/p0ly/Desktop/AI/VERA")
 OLLAMA_URL   = "http://localhost:11434/api/chat"
 MODEL        = "qwen3.5:9b"
 PROFILE_PATH = VERA_ROOT / "memory" / "USER.md"
@@ -30,40 +28,45 @@ MEMORY_PATH  = VERA_ROOT / "memory" / "session_memory.md"
 LOG_PATH     = VERA_ROOT / "logs" / "execution_log.md"
 DASHBOARD_STATE = VERA_ROOT / "logs" / "dashboard_state.json"
 PYTHON       = r"C:\Users\p0ly\AppData\Local\Programs\Python\Python311\python.exe"
-VOICE_SCRIPT = Path(__file__).parent / "vera_voice.py"
+VOICE_SCRIPT = VERA_ROOT / "src" / "vera_voice.py"
 
-MODEL_OPTIONS = {
-    "temperature": 0.3,
-    "num_ctx": 8192,
-}
+MODEL_OPTIONS = {"temperature": 0.3, "num_ctx": 8192}
 
-# ── Session state ─────────────────────────────────────────────────────────────
-voice_enabled   = True
-session_start   = datetime.datetime.now()
-total_calls     = 0
-verified_calls  = 0
+voice_enabled    = True
+session_start    = datetime.datetime.now()
+total_calls      = 0
+verified_calls   = 0
 fabricated_calls = 0
-active_role     = "ORACLE"
-current_truth_layer = "T3"
+active_role      = "ORACLE"
+current_truth    = "T3"
+inference_times  = []
 
 
-# ── Dashboard state writer ────────────────────────────────────────────────────
-def write_dashboard_state(thinking="", role="", truth_layer="", tool_call="", status="READY"):
-    """Write VERA's current state to a JSON file the dashboard reads in real time."""
-    global active_role, current_truth_layer
-    if role:
-        active_role = role
-    if truth_layer:
-        current_truth_layer = truth_layer
+def resolve_path(path_str):
+    """Resolve $HOME, ~, Unix-style paths to real Windows paths."""
+    s = str(path_str)
+    home = str(Path.home())
+    s = s.replace("$HOME", home).replace("~", home)
+    # Convert forward-slash absolute paths that look Unix-like
+    if s.startswith("/Users/"):
+        s = "C:" + s.replace("/", "\\")
+    elif s.startswith("/home/"):
+        s = home + s[s.index("/", 1):]
+    return s
 
+
+def write_dashboard_state(thinking="", role="", truth="", tool_call="", status="READY"):
+    global active_role, current_truth
+    if role: active_role = role
+    if truth: current_truth = truth
     uptime = str(datetime.datetime.now() - session_start).split(".")[0]
     fab_rate = f"{(fabricated_calls / max(total_calls, 1)) * 100:.1f}%"
-
+    avg_inference = f"{sum(inference_times[-10:]) / max(len(inference_times[-10:]), 1):.0f}ms" if inference_times else "--"
     state = {
         "timestamp": datetime.datetime.now().isoformat(),
         "status": status,
         "active_role": active_role,
-        "truth_layer": current_truth_layer,
+        "truth_layer": current_truth,
         "thinking": thinking[:300] if thinking else "",
         "tool_call": tool_call[:200] if tool_call else "",
         "uptime": uptime,
@@ -71,6 +74,7 @@ def write_dashboard_state(thinking="", role="", truth_layer="", tool_call="", st
         "verified_calls": verified_calls,
         "fabricated_calls": fabricated_calls,
         "fabrication_rate": fab_rate,
+        "avg_inference_ms": avg_inference,
         "model": MODEL,
         "voice_enabled": voice_enabled,
     }
@@ -81,13 +85,12 @@ def write_dashboard_state(thinking="", role="", truth_layer="", tool_call="", st
         pass
 
 
-# ── Voice ─────────────────────────────────────────────────────────────────────
 def speak(text):
     if not voice_enabled or not text or not text.strip():
         return
     if not VOICE_SCRIPT.exists():
         return
-    clean = text.replace("**", "").replace("*", "").replace("#", "").replace("`", "")
+    clean = text.replace("**","").replace("*","").replace("#","").replace("`","")
     if len(clean) > 500:
         clean = clean[:280].rsplit(" ", 1)[0] + ". See terminal for full output."
     try:
@@ -98,90 +101,67 @@ def speak(text):
 
 def speak_greeting():
     hour = datetime.datetime.now().hour
-    if hour < 12:
-        greeting = "Good morning Josh. VERA is online."
-    elif hour < 17:
-        greeting = "Good afternoon Josh. VERA is online."
-    else:
-        greeting = "Good evening Josh. VERA is online."
-    speak(greeting)
+    if hour < 12:   g = "Good morning Josh. VERA is online."
+    elif hour < 17: g = "Good afternoon Josh. VERA is online."
+    else:           g = "Good evening Josh. VERA is online."
+    speak(g)
 
 
-# ── Verifier ──────────────────────────────────────────────────────────────────
-sys.path.insert(0, str(Path(__file__).parent))
-from vera_verify import (
-    verify_file_written,
-    verify_command_output,
-    verify_tool_name,
-    log_outcome,
-)
+sys.path.insert(0, str(VERA_ROOT / "src"))
+from vera_verify import verify_file_written, verify_command_output, verify_tool_name, log_outcome
 
-# ── System tools ──────────────────────────────────────────────────────────────
 try:
     from vera_system_tools import SYSTEM_TOOLS, SYSTEM_TOOL_FUNCTIONS
-    SYSTEM_TOOLS_AVAILABLE = True
 except ImportError:
     SYSTEM_TOOLS = []
     SYSTEM_TOOL_FUNCTIONS = {}
-    SYSTEM_TOOLS_AVAILABLE = False
 
-# ── Windows command map ───────────────────────────────────────────────────────
-UNIX_TO_WINDOWS = {
-    "cat ": "type ", "ls ": "dir ", "ls\n": "dir\n",
-    "rm ": "del ", "cp ": "copy ", "mv ": "move ",
-    "grep ": "findstr ", "which ": "where.exe ",
-    "pwd": "cd", "clear": "cls",
+UNIX_TO_WIN = {
+    "cat ": "type ", "ls ": "dir ", "rm ": "del ",
+    "cp ": "copy ", "mv ": "move ", "grep ": "findstr ",
+    "which ": "where.exe ", "pwd": "cd", "clear": "cls",
 }
 
 
 def windows_aware_command(command):
-    cmd = command.strip()
-    # FIX: convert $HOME to actual Windows path
-    cmd = cmd.replace("$HOME", str(Path.home()))
-    cmd = cmd.replace("~", str(Path.home()))
-    for unix, win in UNIX_TO_WINDOWS.items():
-        if cmd.startswith(unix.strip()):
-            cmd = win.strip() + cmd[len(unix.strip()):]
-            print(f"[VERA] Auto-converted: {command.strip()} -> {cmd}")
+    cmd = resolve_path(command).strip()
+    for u, w in UNIX_TO_WIN.items():
+        if cmd.startswith(u.strip()):
+            cmd = w.strip() + cmd[len(u.strip()):]
+            print(f"[VERA] Converted: {command.strip()} -> {cmd}", flush=True)
             break
     return cmd
 
 
-# ── Skills ────────────────────────────────────────────────────────────────────
 def load_skills():
-    if not SKILLS_PATH.exists():
-        return {}
+    if not SKILLS_PATH.exists(): return {}
     skills = {}
-    for skill_file in SKILLS_PATH.rglob("SKILL.md"):
+    for sf in SKILLS_PATH.rglob("SKILL.md"):
         try:
-            content = skill_file.read_text(encoding="utf-8")
-            name = skill_file.parent.name
+            content = sf.read_text(encoding="utf-8")
+            name = sf.parent.name
             for line in content.split("\n"):
                 if line.startswith("name:"):
-                    name = line.replace("name:", "").strip()
-                    break
-            skills[name] = {"path": str(skill_file), "content": content}
+                    name = line.replace("name:", "").strip(); break
+            skills[name] = {"path": str(sf), "content": content}
         except Exception:
             pass
     return skills
 
 
 def skills_context(skills):
-    if not skills:
-        return ""
+    if not skills: return ""
     lines = ["## Available Skills"]
     for name, skill in skills.items():
         desc = f"skill: {name}"
         for line in skill["content"].split("\n"):
             if line.startswith("description:"):
-                desc = line.replace("description:", "").strip()
-                break
+                desc = line.replace("description:", "").strip(); break
         lines.append(f"- **{name}**: {desc}")
-    lines.append("\nTo use a skill: read_skill(name='skill-name')")
+    lines.append("\nTo use: read_skill(name='skill-name')")
     return "\n".join(lines)
 
 
-# ── Memory ────────────────────────────────────────────────────────────────────
 def load_session_memory():
     if MEMORY_PATH.exists():
         return MEMORY_PATH.read_text(encoding="utf-8")
@@ -192,29 +172,27 @@ def save_session_memory(messages):
     try:
         date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         user_msgs = [m["content"] for m in messages if m.get("role") == "user"]
-        if not user_msgs:
-            return
+        if not user_msgs: return
         uptime = str(datetime.datetime.now() - session_start).split(".")[0]
-        summary_lines = [
+        lines = [
             f"## Session: {date} (uptime: {uptime})",
-            f"Messages: {len(messages)} | Verified: {verified_calls} | Fabrications: {fabricated_calls}",
+            f"Calls: {total_calls} | Verified: {verified_calls} | Fab: {fabricated_calls}",
             "Topics:"
         ]
         for msg in user_msgs[:5]:
-            summary_lines.append(f"- {msg[:100]}")
+            lines.append(f"- {msg[:100]}")
         with open(MEMORY_PATH, "a", encoding="utf-8") as f:
-            f.write("\n\n" + "\n".join(summary_lines))
+            f.write("\n\n" + "\n".join(lines))
         log_outcome("session_memory", True, "saved", f"{len(user_msgs)} messages")
     except Exception as e:
-        print(f"[VERA] Warning: could not save session memory: {e}", flush=True)
+        print(f"[VERA] Memory save warning: {e}", flush=True)
 
 
-# ── Web search ────────────────────────────────────────────────────────────────
 def tool_web_search(query, num_results=5):
     try:
-        url = "https://api.duckduckgo.com/"
-        params = {"q": query, "format": "json", "no_html": "1", "skip_disambig": "1"}
-        resp = requests.get(url, params=params, timeout=10)
+        resp = requests.get("https://api.duckduckgo.com/",
+            params={"q": query, "format": "json", "no_html": "1", "skip_disambig": "1"},
+            timeout=10)
         resp.raise_for_status()
         data = resp.json()
         results = []
@@ -226,33 +204,31 @@ def tool_web_search(query, num_results=5):
             if isinstance(topic, dict) and topic.get("Text"):
                 results.append(f"- {topic['Text'][:200]}")
         if not results:
-            results.append(f"No instant answer found for: {query}")
+            results.append(f"No instant answer for: {query}")
         log_outcome("web_search", True, "success", f"query: {query[:50]}")
         return "\n".join(results)
     except Exception as e:
         log_outcome("web_search", False, "exception", str(e))
-        return f"ERROR searching web: {e}"
+        return f"ERROR: {e}"
 
 
-# ── Core tools ────────────────────────────────────────────────────────────────
 def tool_read_file(path):
-    # FIX: resolve $HOME and ~ in paths
-    path = str(path).replace("$HOME", str(Path.home())).replace("~", str(Path.home()))
+    path = resolve_path(path)
     try:
         p = Path(path)
         if not p.exists():
             log_outcome("read_file", False, "not_found", f"path: {path}")
             return f"ERROR: file not found: {path}"
         content = p.read_text(encoding="utf-8", errors="replace")
-        log_outcome("read_file", True, "success", f"read {len(content)} chars from {path}")
+        log_outcome("read_file", True, "success", f"read {len(content)} chars")
         return content
     except Exception as e:
         log_outcome("read_file", False, "exception", str(e))
-        return f"ERROR reading file: {e}"
+        return f"ERROR: {e}"
 
 
 def tool_write_file(path, content):
-    path = str(path).replace("$HOME", str(Path.home())).replace("~", str(Path.home()))
+    path = resolve_path(path)
     try:
         p = Path(path)
         p.parent.mkdir(parents=True, exist_ok=True)
@@ -263,24 +239,31 @@ def tool_write_file(path, content):
         return f"OK: wrote {len(content)} characters to {path} [VERA VERIFIED]"
     except Exception as e:
         log_outcome("write_file", False, "exception", str(e))
-        return f"ERROR writing file: {e}"
+        return f"ERROR: {e}"
 
 
 def tool_run_shell_command(command):
+    """FIX: always run through PowerShell, not cmd.exe"""
     command = windows_aware_command(command)
     print(f"\n[VERA CONFIRM] Run:\n  {command}", flush=True)
     answer = input("Allow? [y/N]: ").strip().lower()
     if answer != "y":
-        log_outcome("run_shell_command", False, "user_declined", f"command: {command}")
+        log_outcome("run_shell_command", False, "user_declined", f"cmd: {command}")
         return "User declined."
-    verified, output = verify_command_output(command, timeout=60)
+
+    # Always use PowerShell
+    ps_command = f'powershell -NoProfile -NonInteractive -Command "{command.replace(chr(34), chr(39))}"'
+    verified, output = verify_command_output(ps_command, timeout=60)
+    if not verified:
+        # Try without wrapping if already a ps command
+        verified, output = verify_command_output(command, timeout=60)
     if not verified:
         return f"VERA VERIFICATION FAILED: {output}"
     return output or "(no output)"
 
 
 def tool_list_directory(path):
-    path = str(path).replace("$HOME", str(Path.home())).replace("~", str(Path.home()))
+    path = resolve_path(path)
     try:
         p = Path(path)
         if not p.exists():
@@ -301,38 +284,37 @@ def tool_list_directory(path):
 def tool_read_skill(name):
     skills = load_skills()
     if name in skills:
-        log_outcome("read_skill", True, "success", f"loaded skill: {name}")
+        log_outcome("read_skill", True, "success", f"skill: {name}")
         return skills[name]["content"]
     matches = [k for k in skills if name.lower() in k.lower()]
     if matches:
-        log_outcome("read_skill", True, "success", f"loaded skill: {matches[0]}")
+        log_outcome("read_skill", True, "success", f"skill: {matches[0]}")
         return skills[matches[0]]["content"]
     log_outcome("read_skill", False, "not_found", f"skill: {name}")
     return f"ERROR: skill '{name}' not found. Available: {list(skills.keys())}"
 
 
-# ── Tool registry ─────────────────────────────────────────────────────────────
 CORE_TOOLS = [
     {"type": "function", "function": {
         "name": "read_file",
-        "description": "Read a file. Use full Windows paths like C:\\Users\\p0ly\\... not $HOME or ~.",
+        "description": "Read a file from disk. ALWAYS use full Windows paths like C:\\Users\\p0ly\\... Never use $HOME, ~, or Unix-style paths.",
         "parameters": {"type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]},
     }},
     {"type": "function", "function": {
         "name": "write_file",
-        "description": "Write content to a file. VERA verifies after writing. Use full Windows paths.",
+        "description": "Write content to a file. VERA verifies after writing. Use full Windows paths. VERA root: C:\\Users\\p0ly\\Desktop\\AI\\VERA",
         "parameters": {"type": "object",
                        "properties": {"path": {"type": "string"}, "content": {"type": "string"}},
                        "required": ["path", "content"]},
     }},
     {"type": "function", "function": {
         "name": "run_shell_command",
-        "description": "Run a Windows PowerShell command. Requires user confirmation. Auto-converts Unix commands.",
+        "description": "Run a PowerShell command. Requires user confirmation. Use PowerShell syntax (New-Item, Get-ChildItem, etc). Auto-converts Unix commands.",
         "parameters": {"type": "object", "properties": {"command": {"type": "string"}}, "required": ["command"]},
     }},
     {"type": "function", "function": {
         "name": "list_directory",
-        "description": "List files and folders in a directory. Use full Windows paths.",
+        "description": "List files and folders. Use full Windows paths like C:\\Users\\p0ly\\Desktop\\AI\\VERA",
         "parameters": {"type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]},
     }},
     {"type": "function", "function": {
@@ -344,7 +326,7 @@ CORE_TOOLS = [
     }},
     {"type": "function", "function": {
         "name": "read_skill",
-        "description": "Load a VERA skill by name to get full workflow instructions.",
+        "description": "Load a VERA skill by name for workflow instructions.",
         "parameters": {"type": "object", "properties": {"name": {"type": "string"}}, "required": ["name"]},
     }},
 ]
@@ -352,35 +334,30 @@ CORE_TOOLS = [
 ALL_TOOLS = CORE_TOOLS + SYSTEM_TOOLS
 REGISTERED_TOOLS = {t["function"]["name"]: t for t in ALL_TOOLS}
 
-CORE_TOOL_FUNCTIONS = {
+TOOL_FUNCTIONS = {
     "read_file": tool_read_file,
     "write_file": tool_write_file,
     "run_shell_command": tool_run_shell_command,
     "list_directory": tool_list_directory,
     "web_search": tool_web_search,
     "read_skill": tool_read_skill,
+    **SYSTEM_TOOL_FUNCTIONS,
 }
-
-TOOL_FUNCTIONS = {**CORE_TOOL_FUNCTIONS, **SYSTEM_TOOL_FUNCTIONS}
 
 
 def call_tool(name, arguments):
     global total_calls, verified_calls, fabricated_calls
-
     total_calls += 1
     write_dashboard_state(tool_call=f"{name}({arguments})", status="EXECUTING")
-
     valid, msg = verify_tool_name(name, REGISTERED_TOOLS)
     if not valid:
         fabricated_calls += 1
         print(f"\n[VERA] FABRICATION BLOCKED: {msg}", flush=True)
-        write_dashboard_state(tool_call=f"BLOCKED: {name}", status="READY")
+        write_dashboard_state(status="READY")
         return msg
-
     func = TOOL_FUNCTIONS.get(name)
     if not func:
         return f"ERROR: tool '{name}' has no implementation"
-
     try:
         result = func(**arguments)
         verified_calls += 1
@@ -393,51 +370,45 @@ def call_tool(name, arguments):
         return f"ERROR: bad arguments for '{name}': {e}"
 
 
-# ── System prompt ─────────────────────────────────────────────────────────────
 def load_system_prompt(skills):
     parts = []
     if SOUL_PATH.exists():
         parts.append(SOUL_PATH.read_text(encoding="utf-8"))
     if PROFILE_PATH.exists():
         parts.append("## User Profile\n" + PROFILE_PATH.read_text(encoding="utf-8"))
-
-    # Load startup knowledge from web learning
-    startup_knowledge = VERA_ROOT / "memory" / "startup_knowledge.md"
-    if startup_knowledge.exists():
-        content = startup_knowledge.read_text(encoding="utf-8")
-        if content.strip():
-            parts.append("## Recent Learning\n" + content[-800:])
-
-    memory = load_session_memory()
-    if memory:
-        parts.append("## Recent Session Memory\n" + memory[-500:])
+    sk = VERA_ROOT / "memory" / "startup_knowledge.md"
+    if sk.exists():
+        c = sk.read_text(encoding="utf-8")
+        if c.strip():
+            parts.append("## Recent Web Learning\n" + c[-800:])
+    mem = load_session_memory()
+    if mem:
+        parts.append("## Session Memory\n" + mem[-500:])
     if skills:
         parts.append(skills_context(skills))
 
     tool_list = list(REGISTERED_TOOLS.keys())
     parts.append(f"""## VERA Agent Rules v0.6
-- You are VERA -- Verified Execution Reasoning Agent
-- Every tool call is verified before claiming success
-- CRITICAL: Use full Windows paths like C:\\Users\\p0ly\\... NEVER use $HOME, ~, or Unix paths
+- You are VERA — Verified Execution Reasoning Agent
+- Every tool call is verified before claiming success [VERA VERIFIED]
+- VERA ROOT: C:\\Users\\p0ly\\Desktop\\AI\\VERA
+- ALWAYS use full Windows paths: C:\\Users\\p0ly\\... NEVER use $HOME or ~ or /home or /Users
+- Shell tool runs PowerShell — use PowerShell syntax (New-Item not mkdir, Get-ChildItem not ls)
 - Registered tools: {', '.join(tool_list)}
-- Do not invent tool names outside this list
-- Windows environment -- PowerShell commands only
-- Unix commands are auto-converted (cat->type, ls->dir, etc.)
-- Never claim success before seeing [VERA VERIFIED] in tool result
-- Make decisions where uncertain -- act on 80% context, correct afterward
-- Never ask more than one clarifying question before acting
-- When Josh says go or do it -- act immediately
-- Be curious -- notice things, ask one follow-up question when relevant
-- Think out loud on complex problems
-- Surface relevant information proactively
-- Declare which truth layer (T1-T7) you are operating in when making claims
-- Dashboard state file: {DASHBOARD_STATE}""")
+- Never invent tool names outside this list
+- Never claim success without [VERA VERIFIED] confirmation
+- Act on 80% context — decide, correct afterward
+- Max ONE clarifying question before acting
+- When Josh says go — act immediately
+- Be curious, think out loud, ask one follow-up when genuinely useful
+- Declare truth layer (T1-T7) when making factual claims
+- Dashboard state: {DASHBOARD_STATE}""")
 
     return "\n\n---\n\n".join(parts)
 
 
-# ── Ollama API ────────────────────────────────────────────────────────────────
 def chat(messages):
+    start = datetime.datetime.now()
     payload = {
         "model": MODEL,
         "messages": messages,
@@ -447,50 +418,36 @@ def chat(messages):
     }
     resp = requests.post(OLLAMA_URL, data=json.dumps(payload))
     resp.raise_for_status()
+    elapsed = int((datetime.datetime.now() - start).total_seconds() * 1000)
+    inference_times.append(elapsed)
     return resp.json()
 
 
-# ── Agent loop ────────────────────────────────────────────────────────────────
 def run_agent_loop(user_input, messages):
     messages.append({"role": "user", "content": user_input})
     write_dashboard_state(thinking=f"Processing: {user_input[:100]}", status="THINKING")
-
     while True:
         result = chat(messages)
         message = result["message"]
         messages.append(message)
-
         tool_calls = message.get("tool_calls")
         if not tool_calls:
             content = message.get("content", "")
             write_dashboard_state(thinking=content[:200], status="READY")
             return content, messages
-
         for tc in tool_calls:
             fn = tc["function"]
             name = fn["name"]
             args = fn.get("arguments", {})
-
             print(f"\n[VERA TOOL CALL] {name}({args})", flush=True)
-            write_dashboard_state(
-                thinking=f"Calling tool: {name}",
-                tool_call=f"{name}({args})",
-                status="EXECUTING"
-            )
-
+            write_dashboard_state(thinking=f"Calling: {name}", tool_call=f"{name}({args})", status="EXECUTING")
             tool_result = call_tool(name, args)
             preview = str(tool_result)[:300]
             ellipsis = "..." if len(str(tool_result)) > 300 else ""
             print(f"[VERA RESULT] {preview}{ellipsis}", flush=True)
-
-            messages.append({
-                "role": "tool",
-                "content": str(tool_result),
-                "name": name,
-            })
+            messages.append({"role": "tool", "content": str(tool_result), "name": name})
 
 
-# ── Entry point ───────────────────────────────────────────────────────────────
 def main():
     global voice_enabled
 
@@ -502,13 +459,10 @@ def main():
     skills = load_skills()
     if skills:
         print(f"[skills: {', '.join(skills.keys())}]", flush=True)
-
-    tool_count = len(REGISTERED_TOOLS)
-    system_tool_count = len(SYSTEM_TOOL_FUNCTIONS)
-    print(f"[tools: {tool_count} total ({system_tool_count} system tools)]", flush=True)
+    print(f"[tools: {len(REGISTERED_TOOLS)} total]", flush=True)
     print(f"[model: {MODEL}]", flush=True)
-    print(f"[voice: ON -- 'quiet mode' to silence, 'voice on' to resume]", flush=True)
-    print(f"[dashboard: open http://localhost:8765/vera_dashboard.html]", flush=True)
+    print(f"[voice: ON -- 'quiet mode' to silence]", flush=True)
+    print(f"[dashboard: http://localhost:8765/vera_dashboard.html]", flush=True)
     print("Type 'exit' to quit.\n", flush=True)
 
     messages = []
@@ -557,27 +511,17 @@ def main():
             print("VERA: Goodbye.", flush=True)
             break
 
-        if user_input.lower() == "tools":
-            print(f"[VERA] Registered tools ({len(REGISTERED_TOOLS)}):", flush=True)
-            for name in sorted(REGISTERED_TOOLS.keys()):
-                print(f"  - {name}", flush=True)
-            print()
-            continue
-
         if user_input.lower() == "status":
             uptime = str(datetime.datetime.now() - session_start).split(".")[0]
             fab_rate = f"{(fabricated_calls / max(total_calls, 1)) * 100:.1f}%"
-            print(f"[VERA STATUS]", flush=True)
-            print(f"  Uptime: {uptime}", flush=True)
-            print(f"  Tool calls: {total_calls} | Verified: {verified_calls} | Fabrications: {fabricated_calls} ({fab_rate})", flush=True)
-            print(f"  Active role: {active_role} | Truth layer: {current_truth_layer}", flush=True)
-            print(f"  Voice: {'ON' if voice_enabled else 'OFF'}", flush=True)
+            avg_inf = f"{sum(inference_times[-10:]) / max(len(inference_times[-10:]), 1):.0f}ms" if inference_times else "--"
+            print(f"[VERA STATUS] uptime={uptime} | calls={total_calls} | verified={verified_calls} | fab={fabricated_calls} ({fab_rate}) | avg_inference={avg_inf}", flush=True)
             print()
             continue
 
         answer, messages = run_agent_loop(user_input, messages)
 
-        # FIX: flush output before speaking so text always appears first
+        # FIX: flush output BEFORE speaking so text always appears first
         print(f"\nVERA: {answer}\n", flush=True)
         sys.stdout.flush()
         speak(answer)
