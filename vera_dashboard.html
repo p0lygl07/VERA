@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VERA Dashboard</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface2: #1a1a1a;
+  --border: #2a2a2a;
+  --accent: #00ff88;
+  --accent2: #00ccff;
+  --warn: #ff9900;
+  --danger: #ff4444;
+  --text: #e8e8e8;
+  --muted: #888888;
+  --font: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 100vh;
+  padding: 12px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border: 1px solid var(--accent);
+  margin-bottom: 12px;
+  background: var(--surface);
+}
+
+.header-left { display: flex; align-items: center; gap: 12px; }
+
+.vera-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--accent);
+  letter-spacing: 2px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.time { color: var(--accent2); font-size: 14px; font-weight: bold; }
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 12px;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0;
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+}
+
+.panel-title {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--accent);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.panel-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-weight: bold;
+}
+
+.badge-green { background: #003322; color: var(--accent); }
+.badge-blue { background: #001a2a; color: var(--accent2); }
+.badge-warn { background: #1a0f00; color: var(--warn); }
+.badge-red { background: #1a0000; color: var(--danger); }
+
+.panel-body {
+  padding: 10px 12px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.panel-body::-webkit-scrollbar { width: 4px; }
+.panel-body::-webkit-scrollbar-track { background: var(--surface); }
+.panel-body::-webkit-scrollbar-thumb { background: var(--border); }
+
+/* Tool call log */
+.tool-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid #1a1a1a;
+  font-size: 11px;
+}
+
+.tool-entry:last-child { border-bottom: none; }
+
+.tool-time { color: var(--muted); min-width: 52px; }
+
+.tool-name {
+  color: var(--accent2);
+  min-width: 110px;
+  font-weight: bold;
+}
+
+.tool-status {
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-weight: bold;
+  min-width: 60px;
+  text-align: center;
+}
+
+.status-verified { background: #003322; color: var(--accent); }
+.status-fabricated { background: #1a0000; color: var(--danger); }
+.status-running { background: #001a1a; color: var(--accent2); }
+.status-pending { background: #1a1a00; color: var(--warn); }
+
+.tool-detail { color: var(--muted); font-size: 10px; flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+/* Thinking/reasoning panel */
+.thought-entry {
+  padding: 4px 0 8px;
+  border-bottom: 1px solid #1a1a1a;
+  font-size: 11px;
+}
+
+.thought-entry:last-child { border-bottom: none; }
+
+.thought-role {
+  font-size: 10px;
+  color: var(--accent);
+  font-weight: bold;
+  margin-bottom: 2px;
+  letter-spacing: 1px;
+}
+
+.thought-text { color: var(--muted); line-height: 1.4; }
+
+.thought-text em { color: var(--text); font-style: normal; }
+
+/* Alerts panel */
+.alert-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid #1a1a1a;
+  font-size: 11px;
+}
+
+.alert-entry:last-child { border-bottom: none; }
+
+.alert-priority {
+  font-size: 9px;
+  font-weight: bold;
+  padding: 2px 5px;
+  border-radius: 2px;
+  min-width: 42px;
+  text-align: center;
+}
+
+.priority-high { background: #1a0000; color: var(--danger); }
+.priority-med { background: #1a0f00; color: var(--warn); }
+.priority-low { background: #001a0d; color: var(--accent); }
+
+.alert-desc { color: var(--text); flex: 1; }
+.alert-days { color: var(--muted); font-size: 10px; white-space: nowrap; }
+
+/* Metrics row */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.metric {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.metric-val {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.metric-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Skills panel */
+.skill-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid #1a1a1a;
+  font-size: 11px;
+}
+
+.skill-entry:last-child { border-bottom: none; }
+.skill-name { color: var(--accent2); }
+.skill-status { font-size: 10px; color: var(--accent); }
+
+/* Voice indicator */
+.voice-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: var(--surface2);
+  border-top: 1px solid var(--border);
+}
+
+.voice-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 16px;
+}
+
+.voice-bar-item {
+  width: 3px;
+  background: var(--accent);
+  border-radius: 1px;
+  animation: voiceAnim 0.8s ease-in-out infinite;
+}
+
+.voice-bar-item:nth-child(1) { height: 4px; animation-delay: 0s; }
+.voice-bar-item:nth-child(2) { height: 10px; animation-delay: 0.1s; }
+.voice-bar-item:nth-child(3) { height: 16px; animation-delay: 0.2s; }
+.voice-bar-item:nth-child(4) { height: 8px; animation-delay: 0.3s; }
+.voice-bar-item:nth-child(5) { height: 12px; animation-delay: 0.4s; }
+
+@keyframes voiceAnim {
+  0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+
+.voice-label { font-size: 10px; color: var(--muted); margin-left: 6px; }
+.voice-active { color: var(--accent); }
+
+/* Full width panel */
+.panel-full { grid-column: 1 / -1; }
+
+/* Learning feed */
+.learn-entry {
+  padding: 4px 0 6px;
+  border-bottom: 1px solid #1a1a1a;
+  font-size: 11px;
+}
+
+.learn-entry:last-child { border-bottom: none; }
+.learn-topic { color: var(--accent); font-size: 10px; font-weight: bold; margin-bottom: 2px; }
+.learn-text { color: var(--muted); }
+
+/* Refresh button */
+.refresh-btn {
+  background: none;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: var(--font);
+  font-size: 10px;
+  padding: 2px 8px;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+
+.refresh-btn:hover { background: #003322; }
+
+/* Footer */
+.footer {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.footer-left { display: flex; gap: 16px; }
+.footer-stat { color: var(--text); }
+.footer-stat span { color: var(--accent); font-weight: bold; }
+
+/* Scrolling text for long content */
+.scrolling { animation: scrollText 20s linear infinite; }
+@keyframes scrollText {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.no-data { color: var(--muted); font-size: 11px; text-align: center; padding: 20px 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="status-dot"></div>
+    <span class="vera-name">VERA</span>
+    <span style="color:var(--muted);font-size:11px">Verified Execution Reasoning Agent v0.5</span>
+  </div>
+  <div class="header-right">
+    <span>Operator: <span style="color:var(--accent2)">Joshua Burton</span></span>
+    <span>Model: <span style="color:var(--text)">qwen3.5:9b</span></span>
+    <span class="time" id="clock">--:--:--</span>
+  </div>
+</div>
+
+<div class="metrics">
+  <div class="metric">
+    <div class="metric-val" id="m-verified">0</div>
+    <div class="metric-label">Verified Actions</div>
+  </div>
+  <div class="metric">
+    <div class="metric-val" style="color:var(--danger)" id="m-fabricated">0</div>
+    <div class="metric-label">Fabrications Caught</div>
+  </div>
+  <div class="metric">
+    <div class="metric-val" style="color:var(--accent2)" id="m-skills">4</div>
+    <div class="metric-label">Skills Loaded</div>
+  </div>
+  <div class="metric">
+    <div class="metric-val" style="color:var(--warn)" id="m-alerts">1</div>
+    <div class="metric-label">Active Alerts</div>
+  </div>
+</div>
+
+<div class="grid">
+
+  <!-- Tool Call Log -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Tool Call Log</span>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span class="panel-badge badge-green" id="verified-badge">● VERIFIED</span>
+        <button class="refresh-btn" onclick="loadLogs()">REFRESH</button>
+      </div>
+    </div>
+    <div class="panel-body" id="tool-log">
+      <div class="no-data">Loading execution log...</div>
+    </div>
+  </div>
+
+  <!-- VERA Thinking / Role Activations -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Thinking / Role Stack</span>
+      <span class="panel-badge badge-blue">● ACTIVE</span>
+    </div>
+    <div class="panel-body" id="thinking-log">
+      <div class="thought-entry">
+        <div class="thought-role">ORACLE + EXECUTOR</div>
+        <div class="thought-text">Session initialized. Context loaded: SOUL.md v3, USER.md, 4 skills, 14 tools. Ready for task assignment.</div>
+      </div>
+      <div class="thought-entry">
+        <div class="thought-role">GUARDIAN</div>
+        <div class="thought-text">Ping Identity report #3797290 flagged: <em>30 days idle</em>. Exceeds 7-day threshold. Alert active.</div>
+      </div>
+      <div class="thought-entry">
+        <div class="thought-role">THINKER</div>
+        <div class="thought-text">Truth layer: T3 (Contextual). Operating within VERA v0.5 framework. All tool calls subject to verification before claim of success.</div>
+      </div>
+      <div class="thought-entry">
+        <div class="thought-role">ARCHITECT</div>
+        <div class="thought-text">Dashboard generated. UI monitors: tool calls, alerts, learning feed, skill status, voice state, metrics.</div>
+      </div>
+    </div>
+    <div class="voice-bar">
+      <div class="voice-bars" id="voice-bars" style="opacity:0.3">
+        <div class="voice-bar-item"></div>
+        <div class="voice-bar-item"></div>
+        <div class="voice-bar-item"></div>
+        <div class="voice-bar-item"></div>
+        <div class="voice-bar-item"></div>
+      </div>
+      <span class="voice-label" id="voice-label">VOICE STANDBY</span>
+    </div>
+  </div>
+
+  <!-- Active Alerts -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Project Alerts</span>
+      <span class="panel-badge badge-warn" id="alert-count-badge">1 ACTIVE</span>
+    </div>
+    <div class="panel-body" id="alerts-panel">
+      <div class="alert-entry">
+        <span class="alert-priority priority-high">HIGH</span>
+        <span class="alert-desc">Ping Identity #3797290 (HackerOne)</span>
+        <span class="alert-days">30d idle</span>
+      </div>
+      <div class="alert-entry">
+        <span class="alert-priority priority-low">OK</span>
+        <span class="alert-desc">VERA development</span>
+        <span class="alert-days">0d</span>
+      </div>
+      <div class="alert-entry">
+        <span class="alert-priority priority-low">OK</span>
+        <span class="alert-desc">SNHUpers CTF lab build</span>
+        <span class="alert-days">0d</span>
+      </div>
+      <div class="alert-entry">
+        <span class="alert-priority priority-low">OK</span>
+        <span class="alert-desc">UO Razor scripts</span>
+        <span class="alert-days">0d</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skills & Capabilities -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Skills & Tools</span>
+      <span class="panel-badge badge-green">14 TOOLS ACTIVE</span>
+    </div>
+    <div class="panel-body">
+      <div class="skill-entry">
+        <span class="skill-name">ctf-lab-builder</span>
+        <span class="skill-status">● LOADED</span>
+      </div>
+      <div class="skill-entry">
+        <span class="skill-name">bug-bounty-recon</span>
+        <span class="skill-status">● LOADED</span>
+      </div>
+      <div class="skill-entry">
+        <span class="skill-name">uo-razor-scripting</span>
+        <span class="skill-status">● LOADED</span>
+      </div>
+      <div class="skill-entry">
+        <span class="skill-name">hardware-payload-dev</span>
+        <span class="skill-status">● LOADED</span>
+      </div>
+      <div class="skill-entry">
+        <span class="skill-name">consequence-logger</span>
+        <span class="skill-status">● LOADED</span>
+      </div>
+      <div class="skill-entry">
+        <span class="skill-name">fabrication-detector</span>
+        <span class="skill-status">● LOADED</span>
+      </div>
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px">CORE TOOLS</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">
+          <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">read_file</span>
+          <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">write_file</span>
+          <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">web_search</span>
+          <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">shell_cmd</span>
+          <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">system_info</span>
+          <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">list_dir</span>
+          <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">network</span>
+          <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">processes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Learning Feed -->
+  <div class="panel panel-full">
+    <div class="panel-header">
+      <span class="panel-title">Web Learning Feed (RSS)</span>
+      <div style="display:flex;gap:6px">
+        <span class="panel-badge badge-blue">INTIGRITI ● KREBS ● PORTSWIGGER ● HN</span>
+        <button class="refresh-btn" onclick="loadLearning()">REFRESH</button>
+      </div>
+    </div>
+    <div class="panel-body" id="learning-feed" style="max-height:140px">
+      <div class="no-data">Loading learning feed...</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <div class="footer-left">
+    <span class="footer-stat">Operator: <span>p0lygl07</span></span>
+    <span class="footer-stat">HackerOne: <span>kuliex270</span></span>
+    <span class="footer-stat">Intigriti: <span>p0lygl07</span></span>
+    <span class="footer-stat">Model: <span>qwen3.5:9b @ localhost:11434</span></span>
+  </div>
+  <span id="last-refresh" style="color:var(--muted)">Last refresh: --</span>
+</div>
+
+<script>
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.toTimeString().split(' ')[0];
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+function parseExecutionLog(text) {
+  const lines = text.split('\n').filter(l => l.startsWith('|') && !l.includes('Date') && !l.includes('---'));
+  return lines.map(line => {
+    const parts = line.split('|').map(p => p.trim()).filter(Boolean);
+    if (parts.length >= 4) {
+      return {
+        date: parts[0] || '',
+        tool: parts[1] || '',
+        executed: parts[2] || '',
+        result: parts[3] || '',
+        notes: parts[4] || ''
+      };
+    }
+    return null;
+  }).filter(Boolean);
+}
+
+function renderToolLog(entries) {
+  const container = document.getElementById('tool-log');
+  if (!entries.length) {
+    container.innerHTML = '<div class="no-data">No tool calls logged yet</div>';
+    return;
+  }
+
+  const recent = entries.slice(-20).reverse();
+  let verified = 0, fabricated = 0;
+
+  const html = recent.map(e => {
+    const isVerified = e.executed === 'YES' || e.result.includes('success');
+    const isFabric = e.executed === 'NO' || e.result.includes('fabricated');
+
+    if (isVerified) verified++;
+    if (isFabric) fabricated++;
+
+    const statusClass = isFabric ? 'status-fabricated' :
+                        isVerified ? 'status-verified' : 'status-running';
+    const statusText = isFabric ? 'BLOCKED' :
+                       isVerified ? 'VERIFIED' : 'PENDING';
+
+    const time = e.date.includes(' ') ? e.date.split(' ')[1] || e.date : e.date;
+
+    return `<div class="tool-entry">
+      <span class="tool-time">${time}</span>
+      <span class="tool-name">${e.tool}</span>
+      <span class="tool-status ${statusClass}">${statusText}</span>
+      <span class="tool-detail">${e.notes || e.result}</span>
+    </div>`;
+  }).join('');
+
+  container.innerHTML = html;
+  document.getElementById('m-verified').textContent = verified;
+  document.getElementById('m-fabricated').textContent = fabricated;
+}
+
+function renderLearningFeed(text) {
+  const container = document.getElementById('learning-feed');
+  if (!text || text.trim().length < 20) {
+    container.innerHTML = '<div class="no-data">No learning entries yet — run vera_learn.py to populate</div>';
+    return;
+  }
+
+  const entries = text.split('## [').filter(Boolean).slice(-8).reverse();
+  const html = entries.map(entry => {
+    const lines = entry.split('\n');
+    const header = lines[0] || '';
+    const content = lines.slice(1).join(' ').replace(/---/g, '').trim();
+    return `<div class="learn-entry">
+      <div class="learn-topic">[${header.split(']')[0]}] ${header.split(']')[1] || ''}</div>
+      <div class="learn-text">${content.substring(0, 200)}${content.length > 200 ? '...' : ''}</div>
+    </div>`;
+  }).join('');
+
+  container.innerHTML = html || '<div class="no-data">No learning entries found</div>';
+}
+
+async function loadLogs() {
+  try {
+    const resp = await fetch('logs/execution_log.md');
+    if (resp.ok) {
+      const text = await resp.text();
+      const entries = parseExecutionLog(text);
+      renderToolLog(entries);
+    }
+  } catch(e) {
+    document.getElementById('tool-log').innerHTML =
+      `<div class="no-data">Log file not accessible from browser.<br>
+      Open this dashboard from the VERA folder:<br>
+      <span style="color:var(--accent2)">start vera_dashboard.html</span></div>`;
+  }
+
+  document.getElementById('last-refresh').textContent =
+    'Last refresh: ' + new Date().toLocaleTimeString();
+}
+
+async function loadLearning() {
+  try {
+    const resp = await fetch('memory/learned_knowledge.md');
+    if (resp.ok) {
+      const text = await resp.text();
+      renderLearningFeed(text);
+    }
+  } catch(e) {
+    document.getElementById('learning-feed').innerHTML =
+      '<div class="no-data">Run vera_learn.py to populate this feed</div>';
+  }
+}
+
+function simulateVoiceActivity() {
+  const bars = document.getElementById('voice-bars');
+  const label = document.getElementById('voice-label');
+  const isActive = Math.random() > 0.7;
+  bars.style.opacity = isActive ? '1' : '0.2';
+  label.textContent = isActive ? 'VERA SPEAKING' : 'VOICE STANDBY';
+  label.className = isActive ? 'voice-label voice-active' : 'voice-label';
+}
+
+setInterval(simulateVoiceActivity, 3000);
+setInterval(() => { loadLogs(); loadLearning(); }, 10000);
+
+loadLogs();
+loadLearning();
+</script>
+</body>
+</html>
