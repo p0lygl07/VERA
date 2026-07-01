@@ -15,6 +15,10 @@ echo [VERA] Running project awareness check...
 "C:\Users\p0ly\AppData\Local\Programs\Python\Python311\python.exe" src\vera_watch.py
 echo.
 
+echo [VERA] Starting ambient stack (listener, observer, scanner, recon)...
+"C:\Users\p0ly\AppData\Local\Programs\Python\Python311\python.exe" src\vera_ambient_stack.py
+echo.
+
 echo [VERA] Starting agent...
 echo.
 "C:\Users\p0ly\AppData\Local\Programs\Python\Python311\python.exe" src\vera_agent.py
