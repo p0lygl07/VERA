@@ -6,346 +6,105 @@
 <title>VERA Dashboard</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
 :root {
-  --bg: #0a0a0a;
-  --surface: #111111;
-  --surface2: #1a1a1a;
-  --border: #2a2a2a;
-  --accent: #00ff88;
-  --accent2: #00ccff;
-  --warn: #ff9900;
-  --danger: #ff4444;
-  --text: #e8e8e8;
-  --muted: #888888;
-  --font: 'Courier New', monospace;
+  --bg: #0a0a0a; --surface: #111111; --surface2: #1a1a1a;
+  --border: #2a2a2a; --accent: #00ff88; --accent2: #00ccff;
+  --warn: #ff9900; --danger: #ff4444; --text: #e8e8e8;
+  --muted: #888888; --font: 'Courier New', monospace;
 }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
-  font-size: 13px;
-  line-height: 1.5;
-  min-height: 100vh;
-  padding: 12px;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border: 1px solid var(--accent);
-  margin-bottom: 12px;
-  background: var(--surface);
-}
-
+body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 13px; line-height: 1.5; min-height: 100vh; padding: 12px; }
+.header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border: 1px solid var(--accent); margin-bottom: 12px; background: var(--surface); }
 .header-left { display: flex; align-items: center; gap: 12px; }
-
-.vera-name {
-  font-size: 18px;
-  font-weight: bold;
-  color: var(--accent);
-  letter-spacing: 2px;
-}
-
-.status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--accent);
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  font-size: 11px;
-  color: var(--muted);
-}
-
+.vera-name { font-size: 18px; font-weight: bold; color: var(--accent); letter-spacing: 2px; }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+.header-right { display: flex; align-items: center; gap: 16px; font-size: 11px; color: var(--muted); }
 .time { color: var(--accent2); font-size: 14px; font-weight: bold; }
-
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto;
-  gap: 12px;
-}
-
-.panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  padding: 0;
-  overflow: hidden;
-}
-
-.panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface2);
-}
-
-.panel-title {
-  font-size: 11px;
-  font-weight: bold;
-  color: var(--accent);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.panel-badge {
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 2px;
-  font-weight: bold;
-}
-
+.metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 12px; }
+.metric { background: var(--surface); border: 1px solid var(--border); padding: 10px 12px; text-align: center; }
+.metric-val { font-size: 22px; font-weight: bold; color: var(--accent); line-height: 1; margin-bottom: 4px; }
+.metric-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.live-state { background: var(--surface2); border: 1px solid var(--border); padding: 8px 12px; margin-bottom: 12px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.state-item { font-size: 10px; }
+.state-label { color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+.state-val { color: var(--accent2); font-weight: bold; }
+.state-val.online { color: var(--accent); }
+.state-val.offline { color: var(--danger); }
+.state-val.thinking { color: var(--warn); }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.panel { background: var(--surface); border: 1px solid var(--border); overflow: hidden; }
+.panel-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid var(--border); background: var(--surface2); }
+.panel-title { font-size: 11px; font-weight: bold; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; }
+.panel-badge { font-size: 10px; padding: 2px 6px; border-radius: 2px; font-weight: bold; }
 .badge-green { background: #003322; color: var(--accent); }
 .badge-blue { background: #001a2a; color: var(--accent2); }
 .badge-warn { background: #1a0f00; color: var(--warn); }
 .badge-red { background: #1a0000; color: var(--danger); }
-
-.panel-body {
-  padding: 10px 12px;
-  max-height: 220px;
-  overflow-y: auto;
-}
-
+.panel-body { padding: 10px 12px; max-height: 200px; overflow-y: auto; }
 .panel-body::-webkit-scrollbar { width: 4px; }
-.panel-body::-webkit-scrollbar-track { background: var(--surface); }
 .panel-body::-webkit-scrollbar-thumb { background: var(--border); }
-
-/* Tool call log */
-.tool-entry {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 4px 0;
-  border-bottom: 1px solid #1a1a1a;
-  font-size: 11px;
-}
-
+.tool-entry { display: flex; align-items: flex-start; gap: 8px; padding: 4px 0; border-bottom: 1px solid #1a1a1a; font-size: 11px; }
 .tool-entry:last-child { border-bottom: none; }
-
 .tool-time { color: var(--muted); min-width: 52px; }
-
-.tool-name {
-  color: var(--accent2);
-  min-width: 110px;
-  font-weight: bold;
-}
-
-.tool-status {
-  font-size: 10px;
-  padding: 1px 5px;
-  border-radius: 2px;
-  font-weight: bold;
-  min-width: 60px;
-  text-align: center;
-}
-
+.tool-name { color: var(--accent2); min-width: 110px; font-weight: bold; }
+.tool-status { font-size: 10px; padding: 1px 5px; border-radius: 2px; font-weight: bold; min-width: 60px; text-align: center; }
 .status-verified { background: #003322; color: var(--accent); }
 .status-fabricated { background: #1a0000; color: var(--danger); }
-.status-running { background: #001a1a; color: var(--accent2); }
 .status-pending { background: #1a1a00; color: var(--warn); }
-
 .tool-detail { color: var(--muted); font-size: 10px; flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-
-/* Thinking/reasoning panel */
-.thought-entry {
-  padding: 4px 0 8px;
-  border-bottom: 1px solid #1a1a1a;
-  font-size: 11px;
-}
-
+.thought-entry { padding: 4px 0 8px; border-bottom: 1px solid #1a1a1a; font-size: 11px; }
 .thought-entry:last-child { border-bottom: none; }
-
-.thought-role {
-  font-size: 10px;
-  color: var(--accent);
-  font-weight: bold;
-  margin-bottom: 2px;
-  letter-spacing: 1px;
-}
-
+.thought-role { font-size: 10px; color: var(--accent); font-weight: bold; margin-bottom: 2px; letter-spacing: 1px; }
 .thought-text { color: var(--muted); line-height: 1.4; }
-
 .thought-text em { color: var(--text); font-style: normal; }
-
-/* Alerts panel */
-.alert-entry {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 0;
-  border-bottom: 1px solid #1a1a1a;
-  font-size: 11px;
-}
-
+.alert-entry { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid #1a1a1a; font-size: 11px; }
 .alert-entry:last-child { border-bottom: none; }
-
-.alert-priority {
-  font-size: 9px;
-  font-weight: bold;
-  padding: 2px 5px;
-  border-radius: 2px;
-  min-width: 42px;
-  text-align: center;
-}
-
+.alert-priority { font-size: 9px; font-weight: bold; padding: 2px 5px; border-radius: 2px; min-width: 42px; text-align: center; }
 .priority-high { background: #1a0000; color: var(--danger); }
-.priority-med { background: #1a0f00; color: var(--warn); }
 .priority-low { background: #001a0d; color: var(--accent); }
-
 .alert-desc { color: var(--text); flex: 1; }
 .alert-days { color: var(--muted); font-size: 10px; white-space: nowrap; }
-
-/* Metrics row */
-.metrics {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.metric {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  padding: 10px 12px;
-  text-align: center;
-}
-
-.metric-val {
-  font-size: 24px;
-  font-weight: bold;
-  color: var(--accent);
-  line-height: 1;
-  margin-bottom: 4px;
-}
-
-.metric-label {
-  font-size: 10px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-/* Skills panel */
-.skill-entry {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 4px 0;
-  border-bottom: 1px solid #1a1a1a;
-  font-size: 11px;
-}
-
+.skill-entry { display: flex; align-items: center; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #1a1a1a; font-size: 11px; }
 .skill-entry:last-child { border-bottom: none; }
 .skill-name { color: var(--accent2); }
 .skill-status { font-size: 10px; color: var(--accent); }
-
-/* Voice indicator */
-.voice-bar {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  background: var(--surface2);
-  border-top: 1px solid var(--border);
-}
-
-.voice-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 16px;
-}
-
-.voice-bar-item {
-  width: 3px;
-  background: var(--accent);
-  border-radius: 1px;
-  animation: voiceAnim 0.8s ease-in-out infinite;
-}
-
-.voice-bar-item:nth-child(1) { height: 4px; animation-delay: 0s; }
-.voice-bar-item:nth-child(2) { height: 10px; animation-delay: 0.1s; }
-.voice-bar-item:nth-child(3) { height: 16px; animation-delay: 0.2s; }
-.voice-bar-item:nth-child(4) { height: 8px; animation-delay: 0.3s; }
-.voice-bar-item:nth-child(5) { height: 12px; animation-delay: 0.4s; }
-
-@keyframes voiceAnim {
-  0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
-  50% { transform: scaleY(1); opacity: 1; }
-}
-
+.voice-bar { display: flex; align-items: center; gap: 4px; padding: 6px 12px; background: var(--surface2); border-top: 1px solid var(--border); }
+.voice-bars { display: flex; align-items: flex-end; gap: 2px; height: 16px; }
+.voice-bar-item { width: 3px; background: var(--accent); border-radius: 1px; animation: voiceAnim 0.8s ease-in-out infinite; }
+.voice-bar-item:nth-child(1){height:4px;animation-delay:0s}.voice-bar-item:nth-child(2){height:10px;animation-delay:0.1s}.voice-bar-item:nth-child(3){height:16px;animation-delay:0.2s}.voice-bar-item:nth-child(4){height:8px;animation-delay:0.3s}.voice-bar-item:nth-child(5){height:12px;animation-delay:0.4s}
+@keyframes voiceAnim{0%,100%{transform:scaleY(0.4);opacity:0.5}50%{transform:scaleY(1);opacity:1}}
 .voice-label { font-size: 10px; color: var(--muted); margin-left: 6px; }
 .voice-active { color: var(--accent); }
-
-/* Full width panel */
 .panel-full { grid-column: 1 / -1; }
-
-/* Learning feed */
-.learn-entry {
-  padding: 4px 0 6px;
-  border-bottom: 1px solid #1a1a1a;
-  font-size: 11px;
-}
-
+.learn-entry { padding: 4px 0 6px; border-bottom: 1px solid #1a1a1a; font-size: 11px; }
 .learn-entry:last-child { border-bottom: none; }
 .learn-topic { color: var(--accent); font-size: 10px; font-weight: bold; margin-bottom: 2px; }
 .learn-text { color: var(--muted); }
-
-/* Refresh button */
-.refresh-btn {
-  background: none;
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  font-family: var(--font);
-  font-size: 10px;
-  padding: 2px 8px;
-  cursor: pointer;
-  letter-spacing: 1px;
-}
-
+.refresh-btn { background: none; border: 1px solid var(--accent); color: var(--accent); font-family: var(--font); font-size: 10px; padding: 2px 8px; cursor: pointer; letter-spacing: 1px; }
 .refresh-btn:hover { background: #003322; }
-
-/* Footer */
-.footer {
-  margin-top: 12px;
-  padding: 8px 12px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 10px;
-  color: var(--muted);
-}
-
-.footer-left { display: flex; gap: 16px; }
-.footer-stat { color: var(--text); }
-.footer-stat span { color: var(--accent); font-weight: bold; }
-
-/* Scrolling text for long content */
-.scrolling { animation: scrollText 20s linear infinite; }
-@keyframes scrollText {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
+.footer { margin-top: 12px; padding: 8px 12px; border: 1px solid var(--border); background: var(--surface); display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--muted); }
 .no-data { color: var(--muted); font-size: 11px; text-align: center; padding: 20px 0; }
+
+/* Sub-agent control panel */
+.agent-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
+.agent-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-family: var(--font); font-size: 10px; padding: 6px 8px; cursor: pointer; text-align: center; transition: all 0.2s; }
+.agent-btn:hover { border-color: var(--accent); color: var(--accent); background: #001a0d; }
+.agent-btn.active { border-color: var(--accent); color: var(--accent); background: #001a0d; }
+.agent-btn .agent-name { font-weight: bold; font-size: 11px; margin-bottom: 2px; }
+.agent-btn .agent-desc { font-size: 9px; color: var(--muted); }
+.task-input-row { display: flex; gap: 6px; margin-bottom: 8px; }
+.task-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--font); font-size: 11px; padding: 6px 10px; outline: none; }
+.task-input:focus { border-color: var(--accent); }
+.task-submit { background: var(--accent); color: var(--bg); border: none; font-family: var(--font); font-size: 11px; font-weight: bold; padding: 6px 16px; cursor: pointer; letter-spacing: 1px; }
+.task-submit:hover { background: #00cc66; }
+.task-submit:disabled { background: var(--muted); cursor: not-allowed; }
+.conductor-status { display: flex; align-items: center; gap: 8px; font-size: 10px; margin-bottom: 8px; }
+.conductor-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
+.conductor-dot.online { background: var(--accent); animation: pulse 2s infinite; }
+.agent-output { background: var(--bg); border: 1px solid var(--border); padding: 8px; min-height: 60px; max-height: 150px; overflow-y: auto; font-size: 11px; color: var(--accent2); white-space: pre-wrap; word-break: break-word; }
+.agent-output .output-header { color: var(--accent); font-weight: bold; margin-bottom: 4px; font-size: 10px; }
+.agent-running { color: var(--warn); animation: blink 1s infinite; }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:0.3} }
 </style>
 </head>
 <body>
@@ -354,7 +113,7 @@ body {
   <div class="header-left">
     <div class="status-dot"></div>
     <span class="vera-name">VERA</span>
-    <span style="color:var(--muted);font-size:11px">Verified Execution Reasoning Agent v0.5</span>
+    <span style="color:var(--muted);font-size:11px">Verified Execution Reasoning Agent v0.6</span>
   </div>
   <div class="header-right">
     <span>Operator: <span style="color:var(--accent2)">Joshua Burton</span></span>
@@ -363,138 +122,119 @@ body {
   </div>
 </div>
 
+<div class="live-state">
+  <div class="state-item"><div class="state-label">Status</div><div class="state-val online" id="ls-status">LOADING</div></div>
+  <div class="state-item"><div class="state-label">Active Role</div><div class="state-val" id="ls-role">--</div></div>
+  <div class="state-item"><div class="state-label">Truth Layer</div><div class="state-val" id="ls-truth">--</div></div>
+  <div class="state-item"><div class="state-label">Current Action</div><div class="state-val thinking" id="ls-thinking" style="font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">--</div></div>
+</div>
+
 <div class="metrics">
-  <div class="metric">
-    <div class="metric-val" id="m-verified">0</div>
-    <div class="metric-label">Verified Actions</div>
-  </div>
-  <div class="metric">
-    <div class="metric-val" style="color:var(--danger)" id="m-fabricated">0</div>
-    <div class="metric-label">Fabrications Caught</div>
-  </div>
-  <div class="metric">
-    <div class="metric-val" style="color:var(--accent2)" id="m-skills">4</div>
-    <div class="metric-label">Skills Loaded</div>
-  </div>
-  <div class="metric">
-    <div class="metric-val" style="color:var(--warn)" id="m-alerts">1</div>
-    <div class="metric-label">Active Alerts</div>
-  </div>
+  <div class="metric"><div class="metric-val" id="m-verified">0</div><div class="metric-label">Verified</div></div>
+  <div class="metric"><div class="metric-val" style="color:var(--danger)" id="m-fabricated">0</div><div class="metric-label">Fabrications</div></div>
+  <div class="metric"><div class="metric-val" style="color:var(--warn)" id="m-fabrate">0%</div><div class="metric-label">Fab Rate</div></div>
+  <div class="metric"><div class="metric-val" style="color:var(--accent2)" id="m-uptime">--</div><div class="metric-label">Uptime</div></div>
+  <div class="metric"><div class="metric-val" style="color:var(--warn)">1</div><div class="metric-label">Alerts</div></div>
 </div>
 
 <div class="grid">
 
-  <!-- Tool Call Log -->
   <div class="panel">
     <div class="panel-header">
       <span class="panel-title">Tool Call Log</span>
       <div style="display:flex;gap:6px;align-items:center">
-        <span class="panel-badge badge-green" id="verified-badge">● VERIFIED</span>
+        <span class="panel-badge badge-green">● VERIFIED</span>
         <button class="refresh-btn" onclick="loadLogs()">REFRESH</button>
       </div>
     </div>
-    <div class="panel-body" id="tool-log">
-      <div class="no-data">Loading execution log...</div>
-    </div>
+    <div class="panel-body" id="tool-log"><div class="no-data">Loading...</div></div>
   </div>
 
-  <!-- VERA Thinking / Role Activations -->
   <div class="panel">
     <div class="panel-header">
       <span class="panel-title">Thinking / Role Stack</span>
-      <span class="panel-badge badge-blue">● ACTIVE</span>
+      <span class="panel-badge badge-blue" id="role-badge">● ORACLE</span>
     </div>
     <div class="panel-body" id="thinking-log">
-      <div class="thought-entry">
-        <div class="thought-role">ORACLE + EXECUTOR</div>
-        <div class="thought-text">Session initialized. Context loaded: SOUL.md v3, USER.md, 4 skills, 14 tools. Ready for task assignment.</div>
-      </div>
-      <div class="thought-entry">
-        <div class="thought-role">GUARDIAN</div>
-        <div class="thought-text">Ping Identity report #3797290 flagged: <em>30 days idle</em>. Exceeds 7-day threshold. Alert active.</div>
-      </div>
-      <div class="thought-entry">
-        <div class="thought-role">THINKER</div>
-        <div class="thought-text">Truth layer: T3 (Contextual). Operating within VERA v0.5 framework. All tool calls subject to verification before claim of success.</div>
-      </div>
-      <div class="thought-entry">
-        <div class="thought-role">ARCHITECT</div>
-        <div class="thought-text">Dashboard generated. UI monitors: tool calls, alerts, learning feed, skill status, voice state, metrics.</div>
-      </div>
+      <div class="thought-entry"><div class="thought-role">ORACLE + EXECUTOR</div><div class="thought-text">Session initialized. SOUL.md v3, USER.md, 4 skills, 14 tools.</div></div>
+      <div class="thought-entry"><div class="thought-role">GUARDIAN</div><div class="thought-text">Ping Identity #3797290: <em>30 days idle</em>. Alert active.</div></div>
+      <div class="thought-entry"><div class="thought-role">THINKER</div><div class="thought-text">Truth layer T3 (Contextual). Multi-agent conductor online at port 8766.</div></div>
     </div>
     <div class="voice-bar">
       <div class="voice-bars" id="voice-bars" style="opacity:0.3">
-        <div class="voice-bar-item"></div>
-        <div class="voice-bar-item"></div>
-        <div class="voice-bar-item"></div>
-        <div class="voice-bar-item"></div>
-        <div class="voice-bar-item"></div>
+        <div class="voice-bar-item"></div><div class="voice-bar-item"></div><div class="voice-bar-item"></div><div class="voice-bar-item"></div><div class="voice-bar-item"></div>
       </div>
       <span class="voice-label" id="voice-label">VOICE STANDBY</span>
     </div>
   </div>
 
-  <!-- Active Alerts -->
-  <div class="panel">
+  <!-- Sub-Agent Control Panel -->
+  <div class="panel panel-full">
     <div class="panel-header">
-      <span class="panel-title">Project Alerts</span>
-      <span class="panel-badge badge-warn" id="alert-count-badge">1 ACTIVE</span>
+      <span class="panel-title">Sub-Agent Control</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="conductor-status">
+          <div class="conductor-dot" id="conductor-dot"></div>
+          <span id="conductor-status-text">Checking conductor...</span>
+        </div>
+        <span class="panel-badge badge-blue">PORT 8766</span>
+        <button class="refresh-btn" onclick="checkConductor()">PING</button>
+      </div>
     </div>
-    <div class="panel-body" id="alerts-panel">
-      <div class="alert-entry">
-        <span class="alert-priority priority-high">HIGH</span>
-        <span class="alert-desc">Ping Identity #3797290 (HackerOne)</span>
-        <span class="alert-days">30d idle</span>
+    <div class="panel-body" style="max-height:none">
+      <div class="agent-grid">
+        <div class="agent-btn" id="btn-monitor" onclick="selectAgent('monitor_operative')">
+          <div class="agent-name">MONITOR</div>
+          <div class="agent-desc">Log scan, port checks, system state</div>
+        </div>
+        <div class="agent-btn" id="btn-sre" onclick="selectAgent('sre_engineer')">
+          <div class="agent-name">SRE ENGINEER</div>
+          <div class="agent-desc">Deps, path repair, runtime hardening</div>
+        </div>
+        <div class="agent-btn" id="btn-recon" onclick="selectAgent('recon_operative')">
+          <div class="agent-name">RECON</div>
+          <div class="agent-desc">Bug bounty recon (in-scope only)</div>
+        </div>
+        <div class="agent-btn" id="btn-ctf" onclick="selectAgent('ctf_builder')">
+          <div class="agent-name">CTF BUILDER</div>
+          <div class="agent-desc">SNHUpers HTML labs + PDF guides</div>
+        </div>
       </div>
-      <div class="alert-entry">
-        <span class="alert-priority priority-low">OK</span>
-        <span class="alert-desc">VERA development</span>
-        <span class="alert-days">0d</span>
+      <div class="task-input-row">
+        <input class="task-input" id="task-input" type="text" placeholder="Select a sub-agent above, then type your task here..." onkeydown="if(event.key==='Enter')fireTask()">
+        <button class="task-submit" id="task-submit" onclick="fireTask()" disabled>FIRE</button>
       </div>
-      <div class="alert-entry">
-        <span class="alert-priority priority-low">OK</span>
-        <span class="alert-desc">SNHUpers CTF lab build</span>
-        <span class="alert-days">0d</span>
-      </div>
-      <div class="alert-entry">
-        <span class="alert-priority priority-low">OK</span>
-        <span class="alert-desc">UO Razor scripts</span>
-        <span class="alert-days">0d</span>
+      <div class="agent-output" id="agent-output">
+        <div style="color:var(--muted)">Select a sub-agent and enter a task to begin. Conductor must be running on port 8766.</div>
       </div>
     </div>
   </div>
 
-  <!-- Skills & Capabilities -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Project Alerts</span>
+      <span class="panel-badge badge-warn">1 ACTIVE</span>
+    </div>
+    <div class="panel-body">
+      <div class="alert-entry"><span class="alert-priority priority-high">HIGH</span><span class="alert-desc">Ping Identity #3797290 (HackerOne)</span><span class="alert-days">30d idle</span></div>
+      <div class="alert-entry"><span class="alert-priority priority-low">OK</span><span class="alert-desc">VERA development</span><span class="alert-days">0d</span></div>
+      <div class="alert-entry"><span class="alert-priority priority-low">OK</span><span class="alert-desc">SNHUpers CTF lab build</span><span class="alert-days">0d</span></div>
+      <div class="alert-entry"><span class="alert-priority priority-low">OK</span><span class="alert-desc">UO Razor scripts</span><span class="alert-days">0d</span></div>
+    </div>
+  </div>
+
   <div class="panel">
     <div class="panel-header">
       <span class="panel-title">Skills & Tools</span>
       <span class="panel-badge badge-green">14 TOOLS ACTIVE</span>
     </div>
     <div class="panel-body">
-      <div class="skill-entry">
-        <span class="skill-name">ctf-lab-builder</span>
-        <span class="skill-status">● LOADED</span>
-      </div>
-      <div class="skill-entry">
-        <span class="skill-name">bug-bounty-recon</span>
-        <span class="skill-status">● LOADED</span>
-      </div>
-      <div class="skill-entry">
-        <span class="skill-name">uo-razor-scripting</span>
-        <span class="skill-status">● LOADED</span>
-      </div>
-      <div class="skill-entry">
-        <span class="skill-name">hardware-payload-dev</span>
-        <span class="skill-status">● LOADED</span>
-      </div>
-      <div class="skill-entry">
-        <span class="skill-name">consequence-logger</span>
-        <span class="skill-status">● LOADED</span>
-      </div>
-      <div class="skill-entry">
-        <span class="skill-name">fabrication-detector</span>
-        <span class="skill-status">● LOADED</span>
-      </div>
+      <div class="skill-entry"><span class="skill-name">ctf-lab-builder</span><span class="skill-status">● LOADED</span></div>
+      <div class="skill-entry"><span class="skill-name">bug-bounty-recon</span><span class="skill-status">● LOADED</span></div>
+      <div class="skill-entry"><span class="skill-name">uo-razor-scripting</span><span class="skill-status">● LOADED</span></div>
+      <div class="skill-entry"><span class="skill-name">hardware-payload-dev</span><span class="skill-status">● LOADED</span></div>
+      <div class="skill-entry"><span class="skill-name">consequence-logger</span><span class="skill-status">● LOADED</span></div>
+      <div class="skill-entry"><span class="skill-name">fabrication-detector</span><span class="skill-status">● LOADED</span></div>
       <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
         <div style="font-size:10px;color:var(--muted);margin-bottom:4px">CORE TOOLS</div>
         <div style="display:flex;flex-wrap:wrap;gap:4px">
@@ -503,15 +243,14 @@ body {
           <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">web_search</span>
           <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">shell_cmd</span>
           <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">system_info</span>
-          <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">list_dir</span>
           <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">network</span>
           <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">processes</span>
+          <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">screenshot</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Learning Feed -->
   <div class="panel panel-full">
     <div class="panel-header">
       <span class="panel-title">Web Learning Feed (RSS)</span>
@@ -520,153 +259,242 @@ body {
         <button class="refresh-btn" onclick="loadLearning()">REFRESH</button>
       </div>
     </div>
-    <div class="panel-body" id="learning-feed" style="max-height:140px">
-      <div class="no-data">Loading learning feed...</div>
-    </div>
+    <div class="panel-body" id="learning-feed" style="max-height:120px"><div class="no-data">Loading...</div></div>
   </div>
 
 </div>
 
 <div class="footer">
-  <div class="footer-left">
-    <span class="footer-stat">Operator: <span>p0lygl07</span></span>
-    <span class="footer-stat">HackerOne: <span>kuliex270</span></span>
-    <span class="footer-stat">Intigriti: <span>p0lygl07</span></span>
-    <span class="footer-stat">Model: <span>qwen3.5:9b @ localhost:11434</span></span>
+  <div style="display:flex;gap:16px">
+    <span>HackerOne: <span style="color:var(--accent);font-weight:bold">kuliex270</span></span>
+    <span>Intigriti: <span style="color:var(--accent);font-weight:bold">p0lygl07</span></span>
+    <span>Model: <span style="color:var(--accent);font-weight:bold">qwen3.5:9b @ localhost:11434</span></span>
+    <span>Conductor: <span style="color:var(--accent);font-weight:bold">localhost:8766</span></span>
   </div>
   <span id="last-refresh" style="color:var(--muted)">Last refresh: --</span>
 </div>
 
 <script>
+// ── Clock ────────────────────────────────────────────────────────────────────
 function updateClock() {
-  const now = new Date();
-  document.getElementById('clock').textContent =
-    now.toTimeString().split(' ')[0];
+  document.getElementById('clock').textContent = new Date().toTimeString().split(' ')[0];
 }
 setInterval(updateClock, 1000);
 updateClock();
 
-function parseExecutionLog(text) {
-  const lines = text.split('\n').filter(l => l.startsWith('|') && !l.includes('Date') && !l.includes('---'));
-  return lines.map(line => {
-    const parts = line.split('|').map(p => p.trim()).filter(Boolean);
-    if (parts.length >= 4) {
-      return {
-        date: parts[0] || '',
-        tool: parts[1] || '',
-        executed: parts[2] || '',
-        result: parts[3] || '',
-        notes: parts[4] || ''
-      };
+// ── Sub-agent control ─────────────────────────────────────────────────────────
+let selectedAgent = null;
+
+function selectAgent(name) {
+  selectedAgent = name;
+  document.querySelectorAll('.agent-btn').forEach(b => b.classList.remove('active'));
+  const map = {
+    'monitor_operative': 'btn-monitor',
+    'sre_engineer': 'btn-sre',
+    'recon_operative': 'btn-recon',
+    'ctf_builder': 'btn-ctf'
+  };
+  const btn = document.getElementById(map[name]);
+  if (btn) btn.classList.add('active');
+  document.getElementById('task-input').placeholder = `Task for ${name}...`;
+  document.getElementById('task-submit').disabled = false;
+  document.getElementById('task-input').focus();
+}
+
+async function fireTask() {
+  if (!selectedAgent) {
+    showOutput('ERROR', 'Select a sub-agent first.');
+    return;
+  }
+  const task = document.getElementById('task-input').value.trim();
+  if (!task) {
+    showOutput('ERROR', 'Enter a task.');
+    return;
+  }
+
+  const submitBtn = document.getElementById('task-submit');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'RUNNING...';
+
+  showOutput('RUNNING', `Routing to ${selectedAgent}:\n${task}\n\nWaiting for sub-agent response...`);
+
+  const payload = {
+    target: selectedAgent,
+    text: task,
+    payload: task,
+    source: 'vera_dashboard',
+    timestamp: new Date().toISOString()
+  };
+
+  try {
+    // Route through conductor via fetch to local proxy
+    // Note: direct TCP not possible from browser -- use a simple HTTP bridge
+    // The conductor returns results via the IPC socket
+    // For now we show the payload and instruct user to use CLI
+    // TODO: add HTTP bridge endpoint to conductor for browser access
+
+    // Try to reach conductor status via a simple check
+    showOutput('INFO',
+      `Task queued for ${selectedAgent}:\n${task}\n\n` +
+      `To execute from terminal:\n` +
+      `python src/vera_ipc_client.py -t ${selectedAgent} -m "${task.replace(/"/g, "'")}"` +
+      `\n\nNote: Direct browser-to-TCP not supported. ` +
+      `HTTP bridge coming in next update.\n` +
+      `Conductor status: check PING button above.`
+    );
+  } catch(e) {
+    showOutput('ERROR', `Failed to route task: ${e.message}`);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'FIRE';
+  }
+}
+
+function showOutput(type, text) {
+  const colors = { 'RUNNING': 'var(--warn)', 'ERROR': 'var(--danger)', 'SUCCESS': 'var(--accent)', 'INFO': 'var(--accent2)' };
+  const color = colors[type] || 'var(--text)';
+  document.getElementById('agent-output').innerHTML =
+    `<div class="output-header" style="color:${color}">[${type}] ${new Date().toLocaleTimeString()}</div>` +
+    `<div style="color:var(--text);white-space:pre-wrap">${text}</div>`;
+}
+
+// ── Conductor status check ────────────────────────────────────────────────────
+async function checkConductor() {
+  const dot = document.getElementById('conductor-dot');
+  const statusText = document.getElementById('conductor-status-text');
+  statusText.textContent = 'Pinging...';
+
+  // Can't reach TCP from browser directly -- check via dashboard state
+  try {
+    const resp = await fetch('logs/dashboard_state.json?t=' + Date.now());
+    if (resp.ok) {
+      const state = await resp.json();
+      if (state.status !== 'OFFLINE') {
+        dot.classList.add('online');
+        statusText.textContent = 'VERA Agent online. Conductor: start separately.';
+      } else {
+        dot.classList.remove('online');
+        statusText.textContent = 'VERA offline';
+      }
     }
-    return null;
-  }).filter(Boolean);
+  } catch(e) {
+    dot.classList.remove('online');
+    statusText.textContent = 'Cannot reach dashboard state';
+  }
+}
+
+// ── Dashboard state ───────────────────────────────────────────────────────────
+async function loadDashboardState() {
+  try {
+    const resp = await fetch('logs/dashboard_state.json?t=' + Date.now());
+    if (!resp.ok) return;
+    const state = await resp.json();
+
+    document.getElementById('ls-status').textContent = state.status || '--';
+    document.getElementById('ls-status').className = 'state-val ' +
+      (state.status === 'ONLINE' || state.status === 'READY' ? 'online' :
+       state.status === 'OFFLINE' ? 'offline' : 'thinking');
+    document.getElementById('ls-role').textContent = state.active_role || '--';
+    document.getElementById('ls-truth').textContent = state.truth_layer || '--';
+    document.getElementById('ls-thinking').textContent = state.thinking || state.tool_call || '--';
+    document.getElementById('m-verified').textContent = state.verified_calls || 0;
+    document.getElementById('m-fabricated').textContent = state.fabricated_calls || 0;
+    document.getElementById('m-fabrate').textContent = state.fabrication_rate || '0%';
+    document.getElementById('m-uptime').textContent = state.uptime || '--';
+    document.getElementById('role-badge').textContent = '● ' + (state.active_role || 'ORACLE');
+
+    const voiceBars = document.getElementById('voice-bars');
+    const voiceLabel = document.getElementById('voice-label');
+    if (state.status === 'THINKING' || state.status === 'EXECUTING') {
+      voiceBars.style.opacity = '1';
+      voiceLabel.textContent = state.status === 'EXECUTING' ? 'EXECUTING TOOL' : 'VERA THINKING';
+      voiceLabel.className = 'voice-label voice-active';
+    } else {
+      voiceBars.style.opacity = '0.3';
+      voiceLabel.textContent = state.voice_enabled ? 'VOICE STANDBY' : 'VOICE MUTED';
+      voiceLabel.className = 'voice-label';
+    }
+
+    if (state.thinking && state.status !== 'READY') {
+      const log = document.getElementById('thinking-log');
+      const entry = document.createElement('div');
+      entry.className = 'thought-entry';
+      entry.innerHTML = `<div class="thought-role">${state.active_role||'VERA'} [${state.truth_layer||'T3'}]</div><div class="thought-text">${state.thinking}</div>`;
+      log.insertBefore(entry, log.firstChild);
+      while (log.children.length > 8) log.removeChild(log.lastChild);
+    }
+
+    const condDot = document.getElementById('conductor-dot');
+    const condText = document.getElementById('conductor-status-text');
+    if (state.status !== 'OFFLINE') {
+      condDot.classList.add('online');
+      condText.textContent = `VERA online (uptime: ${state.uptime||'--'}) | Conductor: port 8766`;
+    }
+  } catch(e) {}
+}
+
+// ── Tool log ──────────────────────────────────────────────────────────────────
+function parseExecutionLog(text) {
+  return text.split('\n').filter(l => l.startsWith('|') && !l.includes('Date') && !l.includes('---'))
+    .map(line => {
+      const parts = line.split('|').map(p => p.trim()).filter(Boolean);
+      if (parts.length >= 4) return { date: parts[0], tool: parts[1], executed: parts[2], result: parts[3], notes: parts[4]||'' };
+      return null;
+    }).filter(Boolean);
 }
 
 function renderToolLog(entries) {
-  const container = document.getElementById('tool-log');
-  if (!entries.length) {
-    container.innerHTML = '<div class="no-data">No tool calls logged yet</div>';
-    return;
-  }
-
-  const recent = entries.slice(-20).reverse();
-  let verified = 0, fabricated = 0;
-
-  const html = recent.map(e => {
-    const isVerified = e.executed === 'YES' || e.result.includes('success');
-    const isFabric = e.executed === 'NO' || e.result.includes('fabricated');
-
-    if (isVerified) verified++;
-    if (isFabric) fabricated++;
-
-    const statusClass = isFabric ? 'status-fabricated' :
-                        isVerified ? 'status-verified' : 'status-running';
-    const statusText = isFabric ? 'BLOCKED' :
-                       isVerified ? 'VERIFIED' : 'PENDING';
-
-    const time = e.date.includes(' ') ? e.date.split(' ')[1] || e.date : e.date;
-
-    return `<div class="tool-entry">
-      <span class="tool-time">${time}</span>
-      <span class="tool-name">${e.tool}</span>
-      <span class="tool-status ${statusClass}">${statusText}</span>
-      <span class="tool-detail">${e.notes || e.result}</span>
-    </div>`;
+  const c = document.getElementById('tool-log');
+  if (!entries.length) { c.innerHTML = '<div class="no-data">No tool calls yet</div>'; return; }
+  c.innerHTML = entries.slice(-20).reverse().map(e => {
+    const isV = e.executed==='YES'||e.result.includes('success');
+    const isF = e.executed==='NO'||e.result.includes('fabricated');
+    const sc = isF?'status-fabricated':isV?'status-verified':'status-pending';
+    const st = isF?'BLOCKED':isV?'VERIFIED':'PENDING';
+    const t = e.date.includes(' ')?e.date.split(' ')[1]||e.date:e.date;
+    return `<div class="tool-entry"><span class="tool-time">${t}</span><span class="tool-name">${e.tool}</span><span class="tool-status ${sc}">${st}</span><span class="tool-detail">${e.notes||e.result}</span></div>`;
   }).join('');
-
-  container.innerHTML = html;
-  document.getElementById('m-verified').textContent = verified;
-  document.getElementById('m-fabricated').textContent = fabricated;
-}
-
-function renderLearningFeed(text) {
-  const container = document.getElementById('learning-feed');
-  if (!text || text.trim().length < 20) {
-    container.innerHTML = '<div class="no-data">No learning entries yet — run vera_learn.py to populate</div>';
-    return;
-  }
-
-  const entries = text.split('## [').filter(Boolean).slice(-8).reverse();
-  const html = entries.map(entry => {
-    const lines = entry.split('\n');
-    const header = lines[0] || '';
-    const content = lines.slice(1).join(' ').replace(/---/g, '').trim();
-    return `<div class="learn-entry">
-      <div class="learn-topic">[${header.split(']')[0]}] ${header.split(']')[1] || ''}</div>
-      <div class="learn-text">${content.substring(0, 200)}${content.length > 200 ? '...' : ''}</div>
-    </div>`;
-  }).join('');
-
-  container.innerHTML = html || '<div class="no-data">No learning entries found</div>';
 }
 
 async function loadLogs() {
   try {
-    const resp = await fetch('logs/execution_log.md');
-    if (resp.ok) {
-      const text = await resp.text();
-      const entries = parseExecutionLog(text);
-      renderToolLog(entries);
-    }
+    const r = await fetch('logs/execution_log.md?t='+Date.now());
+    if (r.ok) renderToolLog(parseExecutionLog(await r.text()));
   } catch(e) {
-    document.getElementById('tool-log').innerHTML =
-      `<div class="no-data">Log file not accessible from browser.<br>
-      Open this dashboard from the VERA folder:<br>
-      <span style="color:var(--accent2)">start vera_dashboard.html</span></div>`;
+    document.getElementById('tool-log').innerHTML = '<div class="no-data">Start: vera_server.bat then open http://localhost:8765</div>';
   }
-
-  document.getElementById('last-refresh').textContent =
-    'Last refresh: ' + new Date().toLocaleTimeString();
+  document.getElementById('last-refresh').textContent = 'Last refresh: ' + new Date().toLocaleTimeString();
 }
 
+// ── Learning feed ─────────────────────────────────────────────────────────────
 async function loadLearning() {
   try {
-    const resp = await fetch('memory/learned_knowledge.md');
-    if (resp.ok) {
-      const text = await resp.text();
-      renderLearningFeed(text);
+    const r = await fetch('memory/learned_knowledge.md?t='+Date.now());
+    if (r.ok) {
+      const text = await r.text();
+      const c = document.getElementById('learning-feed');
+      if (!text.trim()||text.length<20) { c.innerHTML='<div class="no-data">Run vera_learn.py</div>'; return; }
+      const entries = text.split('## [').filter(Boolean).slice(-6).reverse();
+      c.innerHTML = entries.map(e => {
+        const lines = e.split('\n');
+        const h = lines[0]||'';
+        const content = lines.slice(1).join(' ').replace(/---/g,'').trim();
+        return `<div class="learn-entry"><div class="learn-topic">[${h.split(']')[0]}] ${h.split(']')[1]||''}</div><div class="learn-text">${content.substring(0,200)}${content.length>200?'...':''}</div></div>`;
+      }).join('')||'<div class="no-data">No entries</div>';
     }
-  } catch(e) {
-    document.getElementById('learning-feed').innerHTML =
-      '<div class="no-data">Run vera_learn.py to populate this feed</div>';
-  }
+  } catch(e) {}
 }
 
-function simulateVoiceActivity() {
-  const bars = document.getElementById('voice-bars');
-  const label = document.getElementById('voice-label');
-  const isActive = Math.random() > 0.7;
-  bars.style.opacity = isActive ? '1' : '0.2';
-  label.textContent = isActive ? 'VERA SPEAKING' : 'VOICE STANDBY';
-  label.className = isActive ? 'voice-label voice-active' : 'voice-label';
-}
+// ── Auto-refresh ──────────────────────────────────────────────────────────────
+setInterval(loadDashboardState, 2000);
+setInterval(loadLogs, 10000);
+setInterval(loadLearning, 30000);
+setInterval(checkConductor, 15000);
 
-setInterval(simulateVoiceActivity, 3000);
-setInterval(() => { loadLogs(); loadLearning(); }, 10000);
-
+loadDashboardState();
 loadLogs();
 loadLearning();
+checkConductor();
 </script>
 </body>
 </html>
