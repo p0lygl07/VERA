@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
 """
-VERA Conductor IPC Server
-Multi-threaded socket server for sub-agent routing.
-
-Port: 8766 (dashboard server uses 8765 -- do not conflict)
-
-Usage:
-  python core/agent_conductor.py          # start conductor server
-  python core/agent_conductor.py status   # check if running
+VERA Conductor IPC Server v1.1
+Uses factory.run_operative() to inject persona into sub-agent tasks.
+Port: 8766 (dashboard server uses 8765)
 """
 
 import socket
@@ -20,7 +15,6 @@ from pathlib import Path
 VERA_ROOT = Path("C:/Users/p0ly/Desktop/AI/VERA")
 LOG_PATH  = VERA_ROOT / "logs" / "conductor_log.md"
 
-# Import factory with graceful fallback
 try:
     from agent_factory import SubAgentFactory
     FACTORY_AVAILABLE = True
@@ -30,11 +24,10 @@ except ImportError:
         FACTORY_AVAILABLE = True
     except ImportError:
         FACTORY_AVAILABLE = False
-        print("[VERA CONDUCTOR] Warning: agent_factory not found. Sub-agent routing disabled.")
+        print("[VERA CONDUCTOR] Warning: agent_factory not found.")
 
 
 def log_conductor(event, details=""):
-    """Log conductor events."""
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open(LOG_PATH, "a", encoding="utf-8") as f:
@@ -43,7 +36,6 @@ def log_conductor(event, details=""):
 
 class AgentConductor:
     def __init__(self, host="127.0.0.1", port=8766):
-        # NOTE: port 8766 -- dashboard server runs on 8765
         self.host = host
         self.port = port
         self.active_operatives = {}
@@ -53,31 +45,34 @@ class AgentConductor:
         if FACTORY_AVAILABLE:
             try:
                 self.factory = SubAgentFactory()
-                print(f"[VERA CONDUCTOR] Factory initialized.")
+                print("[VERA CONDUCTOR] Factory initialized.")
             except Exception as e:
-                print(f"[VERA CONDUCTOR] Factory init error: {e}")
+                print(f"[VERA CONDUCTOR] Factory error: {e}")
                 self.factory = None
         else:
             self.factory = None
 
     def spawn_and_route(self, agent_type: str, task: str):
-        """Spawn a sub-agent if not running, then route the task."""
+        """Spawn sub-agent if not cached, then route task with persona."""
         if not self.factory:
-            return "ERROR: smolagents factory not available. Install smolagents."
+            return "ERROR: factory not available. Install smolagents + litellm."
 
         if agent_type not in self.active_operatives:
             print(f"[VERA CONDUCTOR] Spawning sub-agent: {agent_type}")
             try:
-                self.active_operatives[agent_type] = self.factory.create_operative(agent_type)
+                self.active_operatives[agent_type] = \
+                    self.factory.create_operative(agent_type)
             except Exception as e:
                 log_conductor("SPAWN_ERROR", f"{agent_type}: {e}")
                 return f"ERROR spawning {agent_type}: {e}"
 
+        agent = self.active_operatives[agent_type]
         print(f"[VERA CONDUCTOR] Routing to [{agent_type}]: {task[:80]}")
         log_conductor("ROUTE", f"{agent_type}: {task[:80]}")
 
         try:
-            result = self.active_operatives[agent_type].run(task)
+            # Use run_operative to inject persona into task
+            result = self.factory.run_operative(agent, task)
             log_conductor("RESULT", f"{agent_type}: success")
             return result
         except Exception as e:
@@ -85,35 +80,29 @@ class AgentConductor:
             return f"ERROR during execution: {e}"
 
     def _handle_socket_client(self, client_socket: socket.socket, addr):
-        """Process incoming IPC command with full error isolation."""
+        """Process incoming IPC command."""
         self.request_count += 1
         print(f"\n[VERA CONDUCTOR] Connection from {addr} (request #{self.request_count})")
 
         with client_socket:
             try:
                 data = client_socket.recv(8192).decode("utf-8").strip()
-
                 if not data:
-                    # Silent return on empty ping
                     return
 
-                # Parse JSON with raw string fallback
                 try:
                     payload = json.loads(data)
                     print(f"[VERA CONDUCTOR] JSON payload: {str(payload)[:100]}")
                 except json.JSONDecodeError:
-                    # Handle raw string transmissions gracefully
-                    print(f"[VERA CONDUCTOR] Raw string received: {data[:80]}")
+                    print(f"[VERA CONDUCTOR] Raw string: {data[:80]}")
                     payload = {
                         "origin": "raw_pipe",
                         "action": "execute",
                         "text": data,
-                        "target": "sre_engineer"  # default target for raw strings
+                        "target": "sre_engineer"
                     }
 
-                # Extract routing fields
                 target = payload.get("target")
-                # Support multiple payload schemas
                 task_text = (
                     payload.get("text") or
                     payload.get("task") or
@@ -121,8 +110,10 @@ class AgentConductor:
                     payload.get("message")
                 )
 
-                valid_targets = ["monitor_operative", "sre_engineer",
-                                 "recon_operative", "ctf_builder"]
+                valid_targets = list(self.factory.list_profiles().keys()) \
+                    if self.factory else \
+                    ["monitor_operative", "sre_engineer",
+                     "recon_operative", "ctf_builder"]
 
                 if target in valid_targets and task_text:
                     result = self.spawn_and_route(target, task_text)
@@ -139,46 +130,46 @@ class AgentConductor:
                         "valid_targets": valid_targets,
                     }
                 else:
-                    # Default ACK for pings or unknown payloads
+                    uptime = str(datetime.datetime.now() - self.start_time).split(".")[0]
                     response = {
                         "status": "ACK",
-                        "message": "VERA Conductor online. Specify 'target' and 'text' to route.",
-                        "conductor_uptime": str(datetime.datetime.now() - self.start_time).split(".")[0],
+                        "message": "VERA Conductor online.",
+                        "conductor_uptime": uptime,
                         "active_operatives": list(self.active_operatives.keys()),
+                        "valid_targets": valid_targets,
                     }
 
                 client_socket.sendall(json.dumps(response).encode("utf-8"))
 
             except Exception as e:
-                print(f"[VERA CONDUCTOR] Socket handler error: {e}")
+                print(f"[VERA CONDUCTOR] Handler error: {e}")
                 log_conductor("SOCKET_ERROR", str(e))
                 try:
-                    error_resp = json.dumps({"status": "ERROR", "message": str(e)})
-                    client_socket.sendall(error_resp.encode("utf-8"))
+                    err = json.dumps({"status": "ERROR", "message": str(e)})
+                    client_socket.sendall(err.encode("utf-8"))
                 except Exception:
                     pass
 
     def start(self):
-        """Start the conductor IPC server."""
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         try:
             server.bind((self.host, self.port))
         except OSError as e:
-            print(f"[VERA CONDUCTOR] Cannot bind to {self.host}:{self.port}: {e}")
-            print(f"[VERA CONDUCTOR] Is another service already using port {self.port}?")
+            print(f"[VERA CONDUCTOR] Cannot bind {self.host}:{self.port}: {e}")
             sys.exit(1)
 
         server.listen(10)
         print("=" * 60)
-        print(f"VERA Agent Conductor")
+        print("VERA Agent Conductor v1.1")
         print(f"Listening on {self.host}:{self.port}")
-        print(f"Dashboard server: http://localhost:8765/vera_dashboard.html")
-        print(f"Factory: {'online' if self.factory else 'offline (install smolagents)'}")
-        print(f"Sub-agent profiles: monitor_operative, sre_engineer, recon_operative, ctf_builder")
+        print(f"Dashboard: http://localhost:8765/vera_dashboard.html")
+        print(f"Factory: {'online' if self.factory else 'offline'}")
+        if self.factory:
+            print(f"Profiles: {', '.join(self.factory.list_profiles().keys())}")
         print("=" * 60)
-        log_conductor("STARTUP", f"Conductor bound to {self.host}:{self.port}")
+        log_conductor("STARTUP", f"Bound to {self.host}:{self.port}")
 
         try:
             while True:
@@ -198,7 +189,6 @@ class AgentConductor:
 
 def main():
     if len(sys.argv) >= 2 and sys.argv[1] == "status":
-        # Quick status check
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(3)
@@ -211,8 +201,7 @@ def main():
             print(f"[VERA CONDUCTOR] Offline: {e}")
         return
 
-    conductor = AgentConductor()
-    conductor.start()
+    AgentConductor().start()
 
 
 if __name__ == "__main__":

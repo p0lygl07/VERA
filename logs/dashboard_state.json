@@ -1,16 +1,16 @@
 {
-  "timestamp": "2026-07-01T18:34:03.078802",
+  "timestamp": "2026-07-01T19:18:06.489385",
   "status": "READY",
   "active_role": "ORACLE",
   "truth_layer": "T3",
-  "thinking": "**VERA STATUS SUMMARY [T3 CONTEXTUAL]**\n\nSOUL.md verified with multi-agent infrastructure section present at bottom \u2713 | Network: internet connected + Ollama localhost:11434 ONLINE \u2713 | Core directory c",
+  "thinking": "",
   "tool_call": "",
-  "uptime": "0:00:42",
-  "total_calls": 3,
-  "verified_calls": 3,
+  "uptime": "0:24:11",
+  "total_calls": 8,
+  "verified_calls": 8,
   "fabricated_calls": 0,
   "fabrication_rate": "0.0%",
-  "avg_inference_ms": "12424ms",
+  "avg_inference_ms": "19744ms",
   "model": "qwen3.5:9b",
   "voice_enabled": true
 }

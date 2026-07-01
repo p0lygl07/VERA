@@ -22,7 +22,7 @@ import datetime
 # NOTE: port 8766 for conductor -- dashboard runs on 8765
 CONDUCTOR_HOST = "127.0.0.1"
 CONDUCTOR_PORT = 8766
-TIMEOUT        = 60  # seconds -- sub-agents need time for LLM calls
+TIMEOUT        = 300  # seconds -- sub-agents need time for LLM calls
 
 
 def parse_arguments():
