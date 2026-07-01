@@ -3,9 +3,10 @@
 VERA Proactive Awareness Engine
 Monitors active projects against alert thresholds.
 Surfaces relevant information without being asked.
+Speaks alerts aloud using VERA voice.
 
 Run manually: python src/vera_watch.py
-Run on schedule: add to Windows Task Scheduler
+Update project: python src/vera_watch.py update <project_key>
 """
 
 import json
@@ -21,6 +22,7 @@ MEMORY_PATH = VERA_ROOT / "memory"
 ALERTS_LOG  = VERA_ROOT / "logs" / "alerts.md"
 OLLAMA_URL  = "http://localhost:11434/api/chat"
 MODEL       = "qwen3.5:9b"
+PYTHON      = r"C:\Users\p0ly\AppData\Local\Programs\Python\Python311\python.exe"
 
 THRESHOLDS = {
     "ping_identity_report": {
@@ -171,6 +173,18 @@ def generate_vera_summary(alerts):
         return f"[VERA AI briefing unavailable: {e}]\n\n{alert_text}"
 
 
+def speak_briefing():
+    """Speak the latest briefing aloud using VERA voice."""
+    voice_script = Path(__file__).parent / "vera_voice.py"
+    if voice_script.exists():
+        try:
+            subprocess.run([PYTHON, str(voice_script), "alert"], timeout=60)
+        except Exception as e:
+            print(f"[VERA WATCH] Voice error: {e}")
+    else:
+        print("[VERA WATCH] Voice module not found — skipping audio.")
+
+
 def main():
     if len(sys.argv) >= 3 and sys.argv[1] == "update":
         project_key = sys.argv[2]
@@ -197,17 +211,23 @@ def main():
         print(formatted)
         save_alerts(formatted)
         print(f"[saved to {ALERTS_LOG}]")
+
         print("\n" + "-" * 40)
         print("VERA BRIEFING:")
         print("-" * 40)
         briefing = generate_vera_summary(alerts)
         print(briefing)
+
         briefing_path = MEMORY_PATH / "latest_briefing.md"
         briefing_path.write_text(
             f"# VERA Briefing\n## {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n{briefing}",
             encoding="utf-8"
         )
         print(f"\n[briefing saved to {briefing_path}]")
+
+        # Speak the briefing aloud
+        print("[VERA WATCH] Speaking briefing...")
+        speak_briefing()
 
     print("\n[VERA WATCH] To mark a project as active today:")
     for key in THRESHOLDS:
