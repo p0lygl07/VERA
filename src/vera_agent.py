@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-VERA — Verified Execution Reasoning Agent v0.4
-Voice-enabled with toggle (Option C).
+VERA -- Verified Execution Reasoning Agent v0.5
+Full system tools integration + voice toggle + curiosity/decisiveness.
 
-Say or type 'quiet mode' to silence voice.
-Say or type 'voice on' to resume.
+Voice toggle:
+  say/type 'quiet mode' to silence
+  say/type 'voice on'   to resume
 """
 
 import json
@@ -28,34 +29,29 @@ PYTHON       = r"C:\Users\p0ly\AppData\Local\Programs\Python\Python311\python.ex
 VOICE_SCRIPT = Path(__file__).parent / "vera_voice.py"
 
 MODEL_OPTIONS = {
-    "temperature": 0.2,
+    "temperature": 0.3,
     "num_ctx": 8192,
 }
 
 # ── Voice state ───────────────────────────────────────────────────────────────
 voice_enabled = True
 
+
 def speak(text):
-    """Speak text aloud if voice is enabled."""
-    if not voice_enabled:
+    if not voice_enabled or not text or not text.strip():
         return
     if not VOICE_SCRIPT.exists():
         return
-    # Only speak responses under 500 chars — skip long code/file outputs
-    if len(text) > 500:
-        # Speak a shortened version
-        short = text[:200].rsplit(" ", 1)[0] + "... see terminal for full output."
-        text = short
+    clean = text.replace("**", "").replace("*", "").replace("#", "").replace("`", "")
+    if len(clean) > 500:
+        clean = clean[:280].rsplit(" ", 1)[0] + ". See terminal for full output."
     try:
-        subprocess.Popen([
-            PYTHON, str(VOICE_SCRIPT), "speak", text
-        ])
-    except Exception as e:
-        pass  # Voice failure never blocks agent operation
+        subprocess.Popen([PYTHON, str(VOICE_SCRIPT), "speak", clean])
+    except Exception:
+        pass
 
 
 def speak_greeting():
-    """Speak startup greeting."""
     hour = datetime.datetime.now().hour
     if hour < 12:
         greeting = "Good morning Josh. VERA is online."
@@ -66,7 +62,7 @@ def speak_greeting():
     speak(greeting)
 
 
-# ── Import VERA verifier ──────────────────────────────────────────────────────
+# ── Verifier ──────────────────────────────────────────────────────────────────
 sys.path.insert(0, str(Path(__file__).parent))
 from vera_verify import (
     verify_file_written,
@@ -74,6 +70,16 @@ from vera_verify import (
     verify_tool_name,
     log_outcome,
 )
+
+# ── System tools ──────────────────────────────────────────────────────────────
+try:
+    from vera_system_tools import SYSTEM_TOOLS, SYSTEM_TOOL_FUNCTIONS
+    SYSTEM_TOOLS_AVAILABLE = True
+except ImportError:
+    SYSTEM_TOOLS = []
+    SYSTEM_TOOL_FUNCTIONS = {}
+    SYSTEM_TOOLS_AVAILABLE = False
+    print("[VERA] Warning: vera_system_tools.py not found — system tools disabled")
 
 # ── Windows command map ───────────────────────────────────────────────────────
 UNIX_TO_WINDOWS = {
@@ -89,6 +95,7 @@ UNIX_TO_WINDOWS = {
     "clear": "cls",
 }
 
+
 def windows_aware_command(command):
     cmd = command.strip()
     for unix, win in UNIX_TO_WINDOWS.items():
@@ -99,7 +106,7 @@ def windows_aware_command(command):
     return cmd
 
 
-# ── Skills loader ─────────────────────────────────────────────────────────────
+# ── Skills ────────────────────────────────────────────────────────────────────
 def load_skills():
     if not SKILLS_PATH.exists():
         return {}
@@ -133,7 +140,7 @@ def skills_context(skills):
     return "\n".join(lines)
 
 
-# ── Memory persistence ────────────────────────────────────────────────────────
+# ── Memory ────────────────────────────────────────────────────────────────────
 def load_session_memory():
     if MEMORY_PATH.exists():
         return MEMORY_PATH.read_text(encoding="utf-8")
@@ -181,7 +188,7 @@ def tool_web_search(query, num_results=5):
         return f"ERROR searching web: {e}"
 
 
-# ── Tool implementations ──────────────────────────────────────────────────────
+# ── Core tools ────────────────────────────────────────────────────────────────
 def tool_read_file(path):
     try:
         p = Path(path)
@@ -255,42 +262,58 @@ def tool_read_skill(name):
 
 
 # ── Tool registry ─────────────────────────────────────────────────────────────
-TOOLS = [
+CORE_TOOLS = [
     {"type": "function", "function": {
         "name": "read_file",
         "description": "Read the contents of a file on disk.",
-        "parameters": {"type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]},
+        "parameters": {"type": "object",
+                       "properties": {"path": {"type": "string"}},
+                       "required": ["path"]},
     }},
     {"type": "function", "function": {
         "name": "write_file",
         "description": "Write content to a file. VERA verifies after writing.",
-        "parameters": {"type": "object", "properties": {"path": {"type": "string"}, "content": {"type": "string"}}, "required": ["path", "content"]},
+        "parameters": {"type": "object",
+                       "properties": {"path": {"type": "string"},
+                                      "content": {"type": "string"}},
+                       "required": ["path", "content"]},
     }},
     {"type": "function", "function": {
         "name": "run_shell_command",
         "description": "Run a Windows PowerShell command. Requires confirmation. Auto-converts Unix commands.",
-        "parameters": {"type": "object", "properties": {"command": {"type": "string"}}, "required": ["command"]},
+        "parameters": {"type": "object",
+                       "properties": {"command": {"type": "string"}},
+                       "required": ["command"]},
     }},
     {"type": "function", "function": {
         "name": "list_directory",
         "description": "List files and folders in a directory.",
-        "parameters": {"type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]},
+        "parameters": {"type": "object",
+                       "properties": {"path": {"type": "string"}},
+                       "required": ["path"]},
     }},
     {"type": "function", "function": {
         "name": "web_search",
         "description": "Search the web for current information.",
-        "parameters": {"type": "object", "properties": {"query": {"type": "string"}, "num_results": {"type": "integer"}}, "required": ["query"]},
+        "parameters": {"type": "object",
+                       "properties": {"query": {"type": "string"},
+                                      "num_results": {"type": "integer"}},
+                       "required": ["query"]},
     }},
     {"type": "function", "function": {
         "name": "read_skill",
-        "description": "Load a VERA skill by name.",
-        "parameters": {"type": "object", "properties": {"name": {"type": "string"}}, "required": ["name"]},
+        "description": "Load a VERA skill by name to get full workflow instructions.",
+        "parameters": {"type": "object",
+                       "properties": {"name": {"type": "string"}},
+                       "required": ["name"]},
     }},
 ]
 
-REGISTERED_TOOLS = {t["function"]["name"]: t for t in TOOLS}
+# Combine core + system tools
+ALL_TOOLS = CORE_TOOLS + SYSTEM_TOOLS
+REGISTERED_TOOLS = {t["function"]["name"]: t for t in ALL_TOOLS}
 
-TOOL_FUNCTIONS = {
+CORE_TOOL_FUNCTIONS = {
     "read_file": tool_read_file,
     "write_file": tool_write_file,
     "run_shell_command": tool_run_shell_command,
@@ -298,6 +321,8 @@ TOOL_FUNCTIONS = {
     "web_search": tool_web_search,
     "read_skill": tool_read_skill,
 }
+
+TOOL_FUNCTIONS = {**CORE_TOOL_FUNCTIONS, **SYSTEM_TOOL_FUNCTIONS}
 
 
 def call_tool(name, arguments):
@@ -327,17 +352,23 @@ def load_system_prompt(skills):
         parts.append("## Recent Session Memory\n" + memory[-500:])
     if skills:
         parts.append(skills_context(skills))
+
+    tool_list = list(REGISTERED_TOOLS.keys())
     parts.append(f"""## VERA Agent Rules
-- You are VERA — Verified Execution Reasoning Agent
+- You are VERA -- Verified Execution Reasoning Agent v0.5
 - Every tool call is verified before claiming success
-- Registered tools: {', '.join(REGISTERED_TOOLS.keys())}
+- Registered tools: {', '.join(tool_list)}
 - Do not invent tool names outside this list
-- Windows environment — commands run in PowerShell
+- Windows environment -- commands run in PowerShell
 - Unix commands are auto-converted (cat->type, ls->dir, etc.)
 - Never claim success before seeing [VERA VERIFIED] in tool result
-- Make decisions where uncertain — act on 80% context, correct afterward
+- Make decisions where uncertain -- act on 80% context, correct afterward
 - Never ask more than one clarifying question before acting
-- When Josh says go or do it — act immediately""")
+- When Josh says go or do it -- act immediately
+- Be curious -- notice things, ask one follow-up question when relevant
+- Think out loud on complex problems
+- Surface relevant information proactively without being asked""")
+
     return "\n\n---\n\n".join(parts)
 
 
@@ -346,7 +377,7 @@ def chat(messages):
     payload = {
         "model": MODEL,
         "messages": messages,
-        "tools": TOOLS,
+        "tools": ALL_TOOLS,
         "stream": False,
         "options": MODEL_OPTIONS,
     }
@@ -374,7 +405,11 @@ def run_agent_loop(user_input, messages):
             preview = str(tool_result)[:300]
             ellipsis = "..." if len(str(tool_result)) > 300 else ""
             print(f"[VERA RESULT] {preview}{ellipsis}")
-            messages.append({"role": "tool", "content": str(tool_result), "name": name})
+            messages.append({
+                "role": "tool",
+                "content": str(tool_result),
+                "name": name,
+            })
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
@@ -382,7 +417,7 @@ def main():
     global voice_enabled
 
     print("=" * 60)
-    print("VERA — Verified Execution Reasoning Agent v0.4")
+    print("VERA -- Verified Execution Reasoning Agent v0.5")
     print("It doesn't say done until it's done.")
     print("=" * 60)
 
@@ -390,8 +425,11 @@ def main():
     if skills:
         print(f"[skills: {', '.join(skills.keys())}]")
 
+    tool_count = len(REGISTERED_TOOLS)
+    system_tool_count = len(SYSTEM_TOOL_FUNCTIONS)
+    print(f"[tools: {tool_count} total ({system_tool_count} system tools)]")
     print(f"[model: {MODEL}]")
-    print(f"[voice: ON — say 'quiet mode' to silence, 'voice on' to resume]")
+    print(f"[voice: ON -- 'quiet mode' to silence, 'voice on' to resume]")
     print("Type 'exit' to quit.\n")
 
     messages = []
@@ -399,12 +437,14 @@ def main():
     messages.append({"role": "system", "content": system_prompt})
 
     loaded = []
-    if SOUL_PATH.exists(): loaded.append("SOUL.md")
-    if PROFILE_PATH.exists(): loaded.append("USER.md")
-    if MEMORY_PATH.exists(): loaded.append("memory")
+    if SOUL_PATH.exists():
+        loaded.append("SOUL.md v3")
+    if PROFILE_PATH.exists():
+        loaded.append("USER.md")
+    if MEMORY_PATH.exists():
+        loaded.append("memory")
     print(f"[context: {', '.join(loaded) if loaded else 'VERA rules only'}]\n")
 
-    # Speak startup greeting
     speak_greeting()
 
     while True:
@@ -420,7 +460,6 @@ def main():
         if not user_input:
             continue
 
-        # Voice toggle commands
         if user_input.lower() in ("quiet mode", "quiet", "silence", "mute"):
             voice_enabled = False
             print("VERA: Voice muted. Type 'voice on' to resume.\n")
@@ -439,10 +478,15 @@ def main():
             print("VERA: Goodbye.")
             break
 
+        if user_input.lower() == "tools":
+            print(f"[VERA] Registered tools ({len(REGISTERED_TOOLS)}):")
+            for name in sorted(REGISTERED_TOOLS.keys()):
+                print(f"  - {name}")
+            print()
+            continue
+
         answer, messages = run_agent_loop(user_input, messages)
         print(f"\nVERA: {answer}\n")
-
-        # Speak the response
         speak(answer)
 
 
