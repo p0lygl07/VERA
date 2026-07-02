@@ -319,3 +319,21 @@ Topics:
 - Well ive bought criticaly needed hardware last time i purchased this alieneware that has made all of
 - I like the ideal of selling the CTF labs we are making also we could start setting up AI agentic mod
 - I think this is a good plan we can find clients ask them what there goal is and then create the agen
+
+## Session: 2026-07-02 08:32 (uptime: 1:06:04)
+Calls: 6 | Verified: 6 | Fab: 0
+Topics:
+- This comming weeks CTF is located at "C:\Users\p0ly\Desktop\CTFS\SNHUpers Week 10" this is the type 
+- what do you think about the CTF in the folder
+- can you manage these type of CTF are you confident?
+- can
+- v
+
+## Session: 2026-07-02 09:09 (uptime: 0:31:14)
+Calls: 3 | Verified: 3 | Fab: 0
+Topics:
+- Playing uo gonna level up my miner template get ingots so i can level up the tinker skills
+- Iron mainly however you have a chance on each ore spawn node of getting any ore type we use the iron
+- nice work! you created a razor script wow.
+- no its fine for now im amazed at your abilites.
+- Im having trouble finding a good mining spot all the nodes have been mined they respawn every so oft

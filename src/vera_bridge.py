@@ -76,7 +76,10 @@ def chat_with_vera(user_message):
             }
             resp = requests.post(OLLAMA_URL, data=json.dumps(payload), timeout=60)
             resp.raise_for_status()
-            response_text = resp.json()["message"]["content"]
+            data_json = resp.json()
+            response_text = data_json.get("message", {}).get("content", "").strip()
+            if not response_text:
+                response_text = "I received your message but my response was empty. Please try again."
             conversation.append({"role": "assistant", "content": response_text})
             _log(f"USER: {user_message[:80]} | VERA: {response_text[:80]}")
             return {"status": "ok", "response": response_text,
@@ -201,7 +204,7 @@ def check_conductor():
     """Check if conductor is online."""
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(2)
+        sock.settimeout(0.5)
         sock.connect((CONDUCTOR_HOST, CONDUCTOR_PORT))
         sock.sendall(json.dumps({"ping": True}).encode("utf-8"))
         data = sock.recv(1024)
@@ -318,12 +321,15 @@ class BridgeHandler(BaseHTTPRequestHandler):
                     return
                 audio = text_to_speech(text)
                 if audio:
-                    self.send_response(200)
-                    self.send_header("Content-Type", "audio/mpeg")
-                    self.send_header("Content-Length", str(len(audio)))
-                    self.send_cors()
-                    self.end_headers()
-                    self.wfile.write(audio)
+                    try:
+                        self.send_response(200)
+                        self.send_header("Content-Type", "audio/mpeg")
+                        self.send_header("Content-Length", str(len(audio)))
+                        self.send_cors()
+                        self.end_headers()
+                        self.wfile.write(audio)
+                    except (ConnectionAbortedError, ConnectionResetError, BrokenPipeError):
+                        pass
                 else:
                     self._json(500, {"error": "TTS failed"})
             except Exception as e:
@@ -338,13 +344,16 @@ class BridgeHandler(BaseHTTPRequestHandler):
             self._json(404, {"error": "Not found"})
 
     def _json(self, code, data):
-        body = json.dumps(data).encode("utf-8")
-        self.send_response(code)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(body)))
-        self.send_cors()
-        self.end_headers()
-        self.wfile.write(body)
+        try:
+            body = json.dumps(data).encode("utf-8")
+            self.send_response(code)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_cors()
+            self.end_headers()
+            self.wfile.write(body)
+        except (ConnectionAbortedError, ConnectionResetError, BrokenPipeError):
+            pass  # Client closed connection early -- normal for status polling
 
 
 def main():

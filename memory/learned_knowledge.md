@@ -26,3 +26,11 @@
 *   Deploy OWASP Juice Shop v20.0.0 locally as a CTF training environment or internal lab, leveraging its integrated AI features and fresh challenges to practice against emerging web security vectors before they reach production targets.
 *   Integrate the newly GA Dependency-Track 5.0 into your software bill of materials (SBOM) pipeline to utilize its horizontal scaling and supply chain integrity verification for enhanced detection of upstream vulnerabilities in open-source dependencies.
 ---
+
+## [2026-07-02 09:09:05] perception | SCREEN
+Vision error: 400 Client Error: Bad Request for url: http://localhost:11434/api/chat
+---
+
+## [2026-07-02 09:11:59] perception | SCREEN
+Vision error: 400 Client Error: Bad Request for url: http://localhost:11434/api/chat
+---

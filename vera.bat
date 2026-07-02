@@ -15,19 +15,35 @@ echo [VERA] Running project awareness check...
 "C:\Users\p0ly\AppData\Local\Programs\Python\Python311\python.exe" src\vera_watch.py
 echo.
 
-echo [VERA] Starting dashboard server (port 8765)...
-start "VERA Dashboard" /min "C:\Users\p0ly\AppData\Local\Programs\Python\Python311\python.exe" -m http.server 8765
+echo [VERA] Starting services...
+echo.
 
-echo [VERA] Starting conductor (port 8766)...
-start "VERA Conductor" /min "C:\Users\p0ly\AppData\Local\Programs\Python\Python311\python.exe" core\agent_conductor.py
+echo [1/5] Dashboard server (port 8765)...
+start "VERA-Dashboard" /min "C:\Users\p0ly\AppData\Local\Programs\Python\Python311\python.exe" -m http.server 8765
 
-echo [VERA] Starting bridge (port 8767)...
-start "VERA Bridge" /min "C:\Users\p0ly\AppData\Local\Programs\Python\Python311\python.exe" src\vera_bridge.py
+echo [2/5] Conductor (port 8766)...
+start "VERA-Conductor" /min "C:\Users\p0ly\AppData\Local\Programs\Python\Python311\python.exe" core\agent_conductor.py
 
-timeout /t 3 /nobreak > nul
+echo [3/5] Bridge (port 8767)...
+start "VERA-Bridge" /min "C:\Users\p0ly\AppData\Local\Programs\Python\Python311\python.exe" src\vera_bridge.py
 
+echo [4/5] Perception engine (mic + screen + camera)...
+start "VERA-Perception" /min "C:\Users\p0ly\AppData\Local\Programs\Python\Python311\python.exe" src\vera_perception.py --all
+
+echo [5/5] Waiting for services to initialize...
+timeout /t 4 /nobreak > nul
+
+echo.
+echo [VERA] All services running. Opening dashboard...
+start "" http://localhost:8765/vera_dashboard.html
+
+echo.
 echo [VERA] Starting agent...
 echo.
+
 "C:\Users\p0ly\AppData\Local\Programs\Python\Python311\python.exe" src\vera_agent.py
 
+echo.
+echo [VERA] Agent stopped. Services still running in background.
+echo [VERA] Close minimized windows to stop all services.
 pause

@@ -371,3 +371,19 @@ Ping Identity bug bounty #3797290 has been idle for 29 days, exceeding the seven
 [HIGH] HIGH -- Ping Identity bug bounty report #3797290 (HackerOne)
    Idle: 31 days (threshold: 7 days)
    Last activity: 2026-06-01
+
+
+# VERA Proactive Alerts
+## 2026-07-02 08:36
+
+[HIGH] HIGH -- Ping Identity bug bounty report #3797290 (HackerOne)
+   Idle: 31 days (threshold: 7 days)
+   Last activity: 2026-06-01
+
+
+# VERA Proactive Alerts
+## 2026-07-02 09:09
+
+[HIGH] HIGH -- Ping Identity bug bounty report #3797290 (HackerOne)
+   Idle: 31 days (threshold: 7 days)
+   Last activity: 2026-06-01
