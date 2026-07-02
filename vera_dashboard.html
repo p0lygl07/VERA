@@ -316,16 +316,19 @@ function handleKey(e) {
 }
 
 function escapeHtml(t) {
+  if (!t || typeof t !== 'string') return '[empty response]';
   return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
           .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
 }
 
 function appendMsg(role, text) {
+  const safeText = (text && typeof text === 'string' && text.trim())
+    ? text : '[VERA response was empty — check bridge]';
   const c = document.getElementById('chat-messages');
   const d = document.createElement('div');
   d.className = `chat-msg ${role}`;
   const sender = role === 'user' ? 'YOU' : 'VERA';
-  d.innerHTML = `<span class="chat-sender">${sender}</span><div class="chat-bubble">${escapeHtml(text)}</div>`;
+  d.innerHTML = `<span class="chat-sender">${sender}</span><div class="chat-bubble">${escapeHtml(safeText)}</div>`;
   c.appendChild(d);
   scrollChat();
 }
@@ -400,20 +403,34 @@ async function sendChat() {
       body: JSON.stringify({ message, voice: false })
     });
     removeThinking();
-    if (resp.ok) {
-      const data = await resp.json();
-      if (data.status === 'ok') {
-        appendMsg('assistant', data.response);
-        if (soniaReplyOn) playVERAVoice(data.response);
-      } else {
-        appendMsg('assistant', `Error: ${data.response}`);
-      }
-    } else {
-      appendMsg('assistant', 'Bridge error. Start: python src/vera_bridge.py');
+
+    if (!resp.ok) {
+      appendMsg('assistant', `Bridge HTTP error ${resp.status}. Is vera_bridge.py running on port 8767?`);
+      return;
     }
+
+    const raw = await resp.text();
+    let data;
+    try { data = JSON.parse(raw); }
+    catch(e) {
+      appendMsg('assistant', `Bridge returned invalid JSON: ${raw.substring(0,80)}`);
+      return;
+    }
+
+    console.log('[VERA BRIDGE] Response:', data);
+
+    const responseText = data && (data.response || data.message || data.content);
+    if (responseText) {
+      appendMsg('assistant', responseText);
+      if (soniaReplyOn) playVERAVoice(responseText);
+    } else {
+      appendMsg('assistant', `Unexpected response format: ${JSON.stringify(data).substring(0,100)}`);
+    }
+
   } catch(e) {
     removeThinking();
-    appendMsg('assistant', 'Cannot reach VERA bridge. Start: python src/vera_bridge.py');
+    console.error('[VERA BRIDGE] Error:', e);
+    appendMsg('assistant', `Bridge unreachable: ${e.message}. Run: python src/vera_bridge.py`);
   } finally {
     sendBtn.disabled = false;
     input.focus();
