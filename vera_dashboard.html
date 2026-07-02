@@ -22,7 +22,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 .time { color: var(--accent2); font-size: 14px; font-weight: bold; }
 .metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 12px; }
 .metric { background: var(--surface); border: 1px solid var(--border); padding: 10px 12px; text-align: center; }
-.metric-val { font-size: 22px; font-weight: bold; color: var(--accent); line-height: 1; margin-bottom: 4px; }
+.metric-val { font-size: 18px; font-weight: bold; color: var(--accent); line-height: 1; margin-bottom: 4px; }
 .metric-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
 .live-state { background: var(--surface2); border: 1px solid var(--border); padding: 8px 12px; margin-bottom: 12px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .state-item { font-size: 10px; }
@@ -31,7 +31,9 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 .state-val.online { color: var(--accent); }
 .state-val.offline { color: var(--danger); }
 .state-val.thinking { color: var(--warn); }
-.main-grid { display: grid; grid-template-columns: 1fr 400px; gap: 12px; }
+.main-grid { display: grid; grid-template-columns: 480px 1fr; gap: 12px; }
+.left-col { order: 2; }
+.main-grid > div:last-child { order: 1; }
 .left-col { display: flex; flex-direction: column; gap: 12px; }
 .panel { background: var(--surface); border: 1px solid var(--border); overflow: hidden; }
 .panel-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid var(--border); background: var(--surface2); }
@@ -86,7 +88,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 
 /* ── CHAT PANEL ─────────────────────────────────────────── */
 .chat-panel { display: flex; flex-direction: column; }
-.chat-messages-wrap { height: 420px; overflow-y: auto; padding: 10px; background: var(--bg); }
+.chat-messages-wrap { height: 520px; overflow-y: auto; padding: 10px; background: var(--bg); }
 .chat-messages-wrap::-webkit-scrollbar { width: 4px; }
 .chat-messages-wrap::-webkit-scrollbar-thumb { background: var(--border); }
 .chat-messages { display: flex; flex-direction: column; gap: 10px; }
