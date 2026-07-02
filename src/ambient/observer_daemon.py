@@ -2,6 +2,7 @@ import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
+
 class LogHandler(FileSystemEventHandler):
     def on_modified(self, event):
         if event.src_path.endswith("task_stream.log"):
@@ -10,7 +11,8 @@ class LogHandler(FileSystemEventHandler):
                 if lines:
                     print(f"\n[NEW_TASK_INPUT]: {lines[-1].strip()}")
 
-if __name__ == "__main__":
+
+def main():
     observer = Observer()
     handler = LogHandler()
     observer.schedule(handler, path=r'C:\Users\p0ly\Desktop\AI\VERA\logs', recursive=False)
@@ -18,5 +20,10 @@ if __name__ == "__main__":
     print("Observer-Daemon Active. Monitoring task_stream.log...")
     try:
         while True: time.sleep(1)
-    except KeyboardInterrupt: observer.stop()
+    except KeyboardInterrupt: 
+        observer.stop()
     observer.join()
+
+
+if __name__ == "__main__":
+    main()

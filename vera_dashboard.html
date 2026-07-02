@@ -31,7 +31,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 .state-val.online { color: var(--accent); }
 .state-val.offline { color: var(--danger); }
 .state-val.thinking { color: var(--warn); }
-.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.main-grid { display: grid; grid-template-columns: 1fr 400px; gap: 12px; }
+.left-col { display: flex; flex-direction: column; gap: 12px; }
 .panel { background: var(--surface); border: 1px solid var(--border); overflow: hidden; }
 .panel-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid var(--border); background: var(--surface2); }
 .panel-title { font-size: 11px; font-weight: bold; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; }
@@ -54,57 +55,88 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 .tool-detail { color: var(--muted); font-size: 10px; flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .thought-entry { padding: 4px 0 8px; border-bottom: 1px solid #1a1a1a; font-size: 11px; }
 .thought-entry:last-child { border-bottom: none; }
-.thought-role { font-size: 10px; color: var(--accent); font-weight: bold; margin-bottom: 2px; letter-spacing: 1px; }
+.thought-role { font-size: 10px; color: var(--accent); font-weight: bold; margin-bottom: 2px; }
 .thought-text { color: var(--muted); line-height: 1.4; }
 .thought-text em { color: var(--text); font-style: normal; }
+.voice-indicator { display: flex; align-items: center; gap: 4px; padding: 6px 12px; background: var(--surface2); border-top: 1px solid var(--border); }
+.voice-bars { display: flex; align-items: flex-end; gap: 2px; height: 16px; }
+.voice-bar-item { width: 3px; background: var(--accent); border-radius: 1px; animation: voiceAnim 0.8s ease-in-out infinite; }
+.voice-bar-item:nth-child(1){height:4px;animation-delay:0s}.voice-bar-item:nth-child(2){height:10px;animation-delay:0.1s}.voice-bar-item:nth-child(3){height:16px;animation-delay:0.2s}.voice-bar-item:nth-child(4){height:8px;animation-delay:0.3s}.voice-bar-item:nth-child(5){height:12px;animation-delay:0.4s}
+@keyframes voiceAnim{0%,100%{transform:scaleY(0.4);opacity:0.5}50%{transform:scaleY(1);opacity:1}}
+.vi-label { font-size: 10px; color: var(--muted); margin-left: 6px; }
+.vi-active { color: var(--accent); }
 .alert-entry { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid #1a1a1a; font-size: 11px; }
 .alert-entry:last-child { border-bottom: none; }
 .alert-priority { font-size: 9px; font-weight: bold; padding: 2px 5px; border-radius: 2px; min-width: 42px; text-align: center; }
 .priority-high { background: #1a0000; color: var(--danger); }
 .priority-low { background: #001a0d; color: var(--accent); }
 .alert-desc { color: var(--text); flex: 1; }
-.alert-days { color: var(--muted); font-size: 10px; white-space: nowrap; }
+.alert-days { color: var(--muted); font-size: 10px; }
 .skill-entry { display: flex; align-items: center; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #1a1a1a; font-size: 11px; }
 .skill-entry:last-child { border-bottom: none; }
 .skill-name { color: var(--accent2); }
 .skill-status { font-size: 10px; color: var(--accent); }
-.voice-bar { display: flex; align-items: center; gap: 4px; padding: 6px 12px; background: var(--surface2); border-top: 1px solid var(--border); }
-.voice-bars { display: flex; align-items: flex-end; gap: 2px; height: 16px; }
-.voice-bar-item { width: 3px; background: var(--accent); border-radius: 1px; animation: voiceAnim 0.8s ease-in-out infinite; }
-.voice-bar-item:nth-child(1){height:4px;animation-delay:0s}.voice-bar-item:nth-child(2){height:10px;animation-delay:0.1s}.voice-bar-item:nth-child(3){height:16px;animation-delay:0.2s}.voice-bar-item:nth-child(4){height:8px;animation-delay:0.3s}.voice-bar-item:nth-child(5){height:12px;animation-delay:0.4s}
-@keyframes voiceAnim{0%,100%{transform:scaleY(0.4);opacity:0.5}50%{transform:scaleY(1);opacity:1}}
-.voice-label { font-size: 10px; color: var(--muted); margin-left: 6px; }
-.voice-active { color: var(--accent); }
-.panel-full { grid-column: 1 / -1; }
 .learn-entry { padding: 4px 0 6px; border-bottom: 1px solid #1a1a1a; font-size: 11px; }
 .learn-entry:last-child { border-bottom: none; }
 .learn-topic { color: var(--accent); font-size: 10px; font-weight: bold; margin-bottom: 2px; }
 .learn-text { color: var(--muted); }
-.refresh-btn { background: none; border: 1px solid var(--accent); color: var(--accent); font-family: var(--font); font-size: 10px; padding: 2px 8px; cursor: pointer; letter-spacing: 1px; }
+.refresh-btn { background: none; border: 1px solid var(--accent); color: var(--accent); font-family: var(--font); font-size: 10px; padding: 2px 8px; cursor: pointer; }
 .refresh-btn:hover { background: #003322; }
-.footer { margin-top: 12px; padding: 8px 12px; border: 1px solid var(--border); background: var(--surface); display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--muted); }
-.no-data { color: var(--muted); font-size: 11px; text-align: center; padding: 20px 0; }
+.no-data { color: var(--muted); font-size: 11px; text-align: center; padding: 16px 0; }
 
-/* Sub-agent control panel */
-.agent-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
-.agent-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-family: var(--font); font-size: 10px; padding: 6px 8px; cursor: pointer; text-align: center; transition: all 0.2s; }
-.agent-btn:hover { border-color: var(--accent); color: var(--accent); background: #001a0d; }
-.agent-btn.active { border-color: var(--accent); color: var(--accent); background: #001a0d; }
-.agent-btn .agent-name { font-weight: bold; font-size: 11px; margin-bottom: 2px; }
-.agent-btn .agent-desc { font-size: 9px; color: var(--muted); }
-.task-input-row { display: flex; gap: 6px; margin-bottom: 8px; }
-.task-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--font); font-size: 11px; padding: 6px 10px; outline: none; }
-.task-input:focus { border-color: var(--accent); }
-.task-submit { background: var(--accent); color: var(--bg); border: none; font-family: var(--font); font-size: 11px; font-weight: bold; padding: 6px 16px; cursor: pointer; letter-spacing: 1px; }
-.task-submit:hover { background: #00cc66; }
-.task-submit:disabled { background: var(--muted); cursor: not-allowed; }
-.conductor-status { display: flex; align-items: center; gap: 8px; font-size: 10px; margin-bottom: 8px; }
-.conductor-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
-.conductor-dot.online { background: var(--accent); animation: pulse 2s infinite; }
-.agent-output { background: var(--bg); border: 1px solid var(--border); padding: 8px; min-height: 60px; max-height: 150px; overflow-y: auto; font-size: 11px; color: var(--accent2); white-space: pre-wrap; word-break: break-word; }
-.agent-output .output-header { color: var(--accent); font-weight: bold; margin-bottom: 4px; font-size: 10px; }
-.agent-running { color: var(--warn); animation: blink 1s infinite; }
-@keyframes blink { 0%,100%{opacity:1}50%{opacity:0.3} }
+/* ── CHAT PANEL ─────────────────────────────────────────── */
+.chat-panel { display: flex; flex-direction: column; }
+.chat-messages-wrap { height: 420px; overflow-y: auto; padding: 10px; background: var(--bg); }
+.chat-messages-wrap::-webkit-scrollbar { width: 4px; }
+.chat-messages-wrap::-webkit-scrollbar-thumb { background: var(--border); }
+.chat-messages { display: flex; flex-direction: column; gap: 10px; }
+.chat-msg { display: flex; flex-direction: column; gap: 2px; }
+.chat-msg.user { align-items: flex-end; }
+.chat-msg.assistant { align-items: flex-start; }
+.chat-bubble { max-width: 88%; padding: 8px 12px; font-size: 12px; line-height: 1.6; }
+.chat-msg.user .chat-bubble { background: #001a2a; border: 1px solid var(--accent2); color: var(--text); border-radius: 8px 8px 0 8px; }
+.chat-msg.assistant .chat-bubble { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px 8px 8px 0; }
+.chat-sender { font-size: 9px; color: var(--muted); padding: 0 4px; letter-spacing: 1px; }
+.chat-msg.user .chat-sender { color: var(--accent2); }
+.chat-msg.assistant .chat-sender { color: var(--accent); }
+.chat-thinking { display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; width: fit-content; }
+.td { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: td 1.2s infinite; }
+.td:nth-child(2){animation-delay:0.2s}.td:nth-child(3){animation-delay:0.4s}
+@keyframes td{0%,60%,100%{transform:scale(0.6);opacity:0.3}30%{transform:scale(1);opacity:1}}
+
+/* Input area */
+.chat-input-area { border-top: 1px solid var(--border); padding: 10px; background: var(--surface); display: flex; flex-direction: column; gap: 8px; }
+.chat-input-row { display: flex; gap: 6px; align-items: flex-end; }
+.chat-input { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--font); font-size: 12px; padding: 8px 10px; outline: none; resize: none; height: 38px; line-height: 1.4; border-radius: 2px; }
+.chat-input:focus { border-color: var(--accent); }
+.chat-send { background: var(--accent); color: var(--bg); border: none; font-family: var(--font); font-size: 11px; font-weight: bold; padding: 8px 14px; cursor: pointer; letter-spacing: 1px; border-radius: 2px; white-space: nowrap; height: 38px; }
+.chat-send:hover { background: #00cc66; }
+.chat-send:disabled { background: var(--muted); cursor: not-allowed; }
+
+/* Voice button */
+.mic-btn { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--border); background: var(--surface2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.2s; flex-shrink: 0; }
+.mic-btn:hover { border-color: var(--accent); }
+.mic-btn.listening { border-color: var(--danger); background: #1a0000; animation: micPulse 1s infinite; }
+.mic-btn.speaking { border-color: var(--accent); background: #003322; animation: micPulse 0.5s infinite; }
+@keyframes micPulse { 0%,100%{transform:scale(1)}50%{transform:scale(1.1)} }
+
+/* Voice mode indicator */
+.voice-mode-bar { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+.voice-toggle { background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--font); font-size: 10px; padding: 3px 8px; cursor: pointer; border-radius: 2px; }
+.voice-toggle.active { border-color: var(--accent); color: var(--accent); background: #001a0d; }
+.voice-toggle.active:hover { background: #003322; }
+.voice-status { font-size: 10px; color: var(--muted); margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.voice-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--danger); }
+.voice-dot.on { background: var(--accent); animation: pulse 2s infinite; }
+
+/* Chat controls */
+.chat-controls { display: flex; gap: 6px; align-items: center; }
+.ctrl-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--font); font-size: 10px; padding: 2px 8px; cursor: pointer; }
+.ctrl-btn:hover { border-color: var(--accent); color: var(--accent); }
+.bridge-info { margin-left: auto; font-size: 10px; color: var(--muted); }
+.bridge-info span { color: var(--accent); }
+
+.footer { margin-top: 12px; padding: 8px 12px; border: 1px solid var(--border); background: var(--surface); display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -126,7 +158,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
   <div class="state-item"><div class="state-label">Status</div><div class="state-val online" id="ls-status">LOADING</div></div>
   <div class="state-item"><div class="state-label">Active Role</div><div class="state-val" id="ls-role">--</div></div>
   <div class="state-item"><div class="state-label">Truth Layer</div><div class="state-val" id="ls-truth">--</div></div>
-  <div class="state-item"><div class="state-label">Current Action</div><div class="state-val thinking" id="ls-thinking" style="font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">--</div></div>
+  <div class="state-item"><div class="state-label">Current Action</div><div class="state-val thinking" id="ls-thinking" style="font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">--</div></div>
 </div>
 
 <div class="metrics">
@@ -137,364 +169,455 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
   <div class="metric"><div class="metric-val" style="color:var(--warn)">1</div><div class="metric-label">Alerts</div></div>
 </div>
 
-<div class="grid">
+<div class="main-grid">
+  <div class="left-col">
 
-  <div class="panel">
-    <div class="panel-header">
-      <span class="panel-title">Tool Call Log</span>
-      <div style="display:flex;gap:6px;align-items:center">
-        <span class="panel-badge badge-green">● VERIFIED</span>
-        <button class="refresh-btn" onclick="loadLogs()">REFRESH</button>
-      </div>
-    </div>
-    <div class="panel-body" id="tool-log"><div class="no-data">Loading...</div></div>
-  </div>
-
-  <div class="panel">
-    <div class="panel-header">
-      <span class="panel-title">Thinking / Role Stack</span>
-      <span class="panel-badge badge-blue" id="role-badge">● ORACLE</span>
-    </div>
-    <div class="panel-body" id="thinking-log">
-      <div class="thought-entry"><div class="thought-role">ORACLE + EXECUTOR</div><div class="thought-text">Session initialized. SOUL.md v3, USER.md, 4 skills, 14 tools.</div></div>
-      <div class="thought-entry"><div class="thought-role">GUARDIAN</div><div class="thought-text">Ping Identity #3797290: <em>30 days idle</em>. Alert active.</div></div>
-      <div class="thought-entry"><div class="thought-role">THINKER</div><div class="thought-text">Truth layer T3 (Contextual). Multi-agent conductor online at port 8766.</div></div>
-    </div>
-    <div class="voice-bar">
-      <div class="voice-bars" id="voice-bars" style="opacity:0.3">
-        <div class="voice-bar-item"></div><div class="voice-bar-item"></div><div class="voice-bar-item"></div><div class="voice-bar-item"></div><div class="voice-bar-item"></div>
-      </div>
-      <span class="voice-label" id="voice-label">VOICE STANDBY</span>
-    </div>
-  </div>
-
-  <!-- Sub-Agent Control Panel -->
-  <div class="panel panel-full">
-    <div class="panel-header">
-      <span class="panel-title">Sub-Agent Control</span>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div class="conductor-status">
-          <div class="conductor-dot" id="conductor-dot"></div>
-          <span id="conductor-status-text">Checking conductor...</span>
-        </div>
-        <span class="panel-badge badge-blue">PORT 8766</span>
-        <button class="refresh-btn" onclick="checkConductor()">PING</button>
-      </div>
-    </div>
-    <div class="panel-body" style="max-height:none">
-      <div class="agent-grid">
-        <div class="agent-btn" id="btn-monitor" onclick="selectAgent('monitor_operative')">
-          <div class="agent-name">MONITOR</div>
-          <div class="agent-desc">Log scan, port checks, system state</div>
-        </div>
-        <div class="agent-btn" id="btn-sre" onclick="selectAgent('sre_engineer')">
-          <div class="agent-name">SRE ENGINEER</div>
-          <div class="agent-desc">Deps, path repair, runtime hardening</div>
-        </div>
-        <div class="agent-btn" id="btn-recon" onclick="selectAgent('recon_operative')">
-          <div class="agent-name">RECON</div>
-          <div class="agent-desc">Bug bounty recon (in-scope only)</div>
-        </div>
-        <div class="agent-btn" id="btn-ctf" onclick="selectAgent('ctf_builder')">
-          <div class="agent-name">CTF BUILDER</div>
-          <div class="agent-desc">SNHUpers HTML labs + PDF guides</div>
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Tool Call Log</span>
+        <div style="display:flex;gap:6px">
+          <span class="panel-badge badge-green">● VERIFIED</span>
+          <button class="refresh-btn" onclick="loadLogs()">REFRESH</button>
         </div>
       </div>
-      <div class="task-input-row">
-        <input class="task-input" id="task-input" type="text" placeholder="Select a sub-agent above, then type your task here..." onkeydown="if(event.key==='Enter')fireTask()">
-        <button class="task-submit" id="task-submit" onclick="fireTask()" disabled>FIRE</button>
-      </div>
-      <div class="agent-output" id="agent-output">
-        <div style="color:var(--muted)">Select a sub-agent and enter a task to begin. Conductor must be running on port 8766.</div>
-      </div>
+      <div class="panel-body" id="tool-log"><div class="no-data">Loading...</div></div>
     </div>
-  </div>
 
-  <div class="panel">
-    <div class="panel-header">
-      <span class="panel-title">Project Alerts</span>
-      <span class="panel-badge badge-warn">1 ACTIVE</span>
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Thinking / Role Stack</span>
+        <span class="panel-badge badge-blue" id="role-badge">● ORACLE</span>
+      </div>
+      <div class="panel-body" id="thinking-log">
+        <div class="thought-entry"><div class="thought-role">ORACLE + EXECUTOR</div><div class="thought-text">SOUL.md v3, USER.md, 4 skills, 14 tools loaded.</div></div>
+        <div class="thought-entry"><div class="thought-role">GUARDIAN</div><div class="thought-text">Ping Identity #3797290: <em>30 days idle</em>. Alert active.</div></div>
+        <div class="thought-entry"><div class="thought-role">THINKER</div><div class="thought-text">Truth layer T3. Multi-agent conductor port 8766. Bridge port 8767.</div></div>
+      </div>
+      <div class="voice-indicator">
+        <div class="voice-bars" id="vi-bars" style="opacity:0.3">
+          <div class="voice-bar-item"></div><div class="voice-bar-item"></div><div class="voice-bar-item"></div><div class="voice-bar-item"></div><div class="voice-bar-item"></div>
+        </div>
+        <span class="vi-label" id="vi-label">VOICE STANDBY</span>
+      </div>
     </div>
-    <div class="panel-body">
-      <div class="alert-entry"><span class="alert-priority priority-high">HIGH</span><span class="alert-desc">Ping Identity #3797290 (HackerOne)</span><span class="alert-days">30d idle</span></div>
-      <div class="alert-entry"><span class="alert-priority priority-low">OK</span><span class="alert-desc">VERA development</span><span class="alert-days">0d</span></div>
-      <div class="alert-entry"><span class="alert-priority priority-low">OK</span><span class="alert-desc">SNHUpers CTF lab build</span><span class="alert-days">0d</span></div>
-      <div class="alert-entry"><span class="alert-priority priority-low">OK</span><span class="alert-desc">UO Razor scripts</span><span class="alert-days">0d</span></div>
-    </div>
-  </div>
 
-  <div class="panel">
-    <div class="panel-header">
-      <span class="panel-title">Skills & Tools</span>
-      <span class="panel-badge badge-green">14 TOOLS ACTIVE</span>
-    </div>
-    <div class="panel-body">
-      <div class="skill-entry"><span class="skill-name">ctf-lab-builder</span><span class="skill-status">● LOADED</span></div>
-      <div class="skill-entry"><span class="skill-name">bug-bounty-recon</span><span class="skill-status">● LOADED</span></div>
-      <div class="skill-entry"><span class="skill-name">uo-razor-scripting</span><span class="skill-status">● LOADED</span></div>
-      <div class="skill-entry"><span class="skill-name">hardware-payload-dev</span><span class="skill-status">● LOADED</span></div>
-      <div class="skill-entry"><span class="skill-name">consequence-logger</span><span class="skill-status">● LOADED</span></div>
-      <div class="skill-entry"><span class="skill-name">fabrication-detector</span><span class="skill-status">● LOADED</span></div>
-      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
-        <div style="font-size:10px;color:var(--muted);margin-bottom:4px">CORE TOOLS</div>
-        <div style="display:flex;flex-wrap:wrap;gap:4px">
-          <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">read_file</span>
-          <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">write_file</span>
-          <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">web_search</span>
-          <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">shell_cmd</span>
-          <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">system_info</span>
-          <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">network</span>
-          <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">processes</span>
-          <span style="font-size:10px;padding:1px 5px;border:1px solid var(--border);color:var(--muted)">screenshot</span>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Project Alerts</span><span class="panel-badge badge-warn">1 ACTIVE</span></div>
+        <div class="panel-body">
+          <div class="alert-entry"><span class="alert-priority priority-high">HIGH</span><span class="alert-desc">Ping Identity #3797290</span><span class="alert-days">30d</span></div>
+          <div class="alert-entry"><span class="alert-priority priority-low">OK</span><span class="alert-desc">VERA development</span><span class="alert-days">0d</span></div>
+          <div class="alert-entry"><span class="alert-priority priority-low">OK</span><span class="alert-desc">SNHUpers CTF lab</span><span class="alert-days">0d</span></div>
+          <div class="alert-entry"><span class="alert-priority priority-low">OK</span><span class="alert-desc">UO Razor scripts</span><span class="alert-days">0d</span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Skills & Tools</span><span class="panel-badge badge-green">14 ACTIVE</span></div>
+        <div class="panel-body">
+          <div class="skill-entry"><span class="skill-name">ctf-lab-builder</span><span class="skill-status">● LOADED</span></div>
+          <div class="skill-entry"><span class="skill-name">bug-bounty-recon</span><span class="skill-status">● LOADED</span></div>
+          <div class="skill-entry"><span class="skill-name">uo-razor-scripting</span><span class="skill-status">● LOADED</span></div>
+          <div class="skill-entry"><span class="skill-name">hardware-payload-dev</span><span class="skill-status">● LOADED</span></div>
+          <div class="skill-entry"><span class="skill-name">consequence-logger</span><span class="skill-status">● LOADED</span></div>
+          <div class="skill-entry"><span class="skill-name">fabrication-detector</span><span class="skill-status">● LOADED</span></div>
         </div>
       </div>
     </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Web Learning Feed (RSS)</span>
+        <div style="display:flex;gap:6px">
+          <span class="panel-badge badge-blue">INTIGRITI ● KREBS ● PORTSWIGGER</span>
+          <button class="refresh-btn" onclick="loadLearning()">REFRESH</button>
+        </div>
+      </div>
+      <div class="panel-body" id="learning-feed" style="max-height:110px"><div class="no-data">Loading...</div></div>
+    </div>
+
   </div>
 
-  <div class="panel panel-full">
-    <div class="panel-header">
-      <span class="panel-title">Web Learning Feed (RSS)</span>
-      <div style="display:flex;gap:6px">
-        <span class="panel-badge badge-blue">INTIGRITI ● KREBS ● PORTSWIGGER ● HN</span>
-        <button class="refresh-btn" onclick="loadLearning()">REFRESH</button>
+  <!-- CHAT PANEL -->
+  <div>
+    <div class="panel chat-panel">
+      <div class="panel-header">
+        <span class="panel-title">Chat with VERA</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span style="font-size:10px;color:var(--muted)" id="bridge-status-text">Checking...</span>
+          <span class="panel-badge badge-green" id="bridge-badge">● BRIDGE</span>
+        </div>
+      </div>
+
+      <div class="chat-messages-wrap" id="chat-wrap">
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-msg assistant">
+            <span class="chat-sender">VERA</span>
+            <div class="chat-bubble">Good evening Josh. Dashboard voice chat is online. You can type or use the mic button to speak. What do you need?</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <!-- Voice mode bar -->
+        <div class="voice-mode-bar">
+          <button class="voice-toggle" id="voice-toggle" onclick="toggleVoiceMode()">🎙 VOICE OFF</button>
+          <button class="voice-toggle" id="sonia-toggle" onclick="toggleSoniaReply()" style="margin-left:4px">🔊 SONIA OFF</button>
+          <div class="voice-status">
+            <div class="voice-dot" id="voice-dot"></div>
+            <span id="voice-mode-text">Voice mode: off</span>
+          </div>
+        </div>
+
+        <!-- Input row -->
+        <div class="chat-input-row">
+          <button class="mic-btn" id="mic-btn" onclick="toggleMic()" title="Hold to speak">🎤</button>
+          <textarea class="chat-input" id="chat-input" placeholder="Type message or click mic to speak..." onkeydown="handleKey(event)"></textarea>
+          <button class="chat-send" id="chat-send" onclick="sendChat()">SEND</button>
+        </div>
+
+        <!-- Controls -->
+        <div class="chat-controls">
+          <button class="ctrl-btn" onclick="clearChat()">CLEAR</button>
+          <button class="ctrl-btn" onclick="loadHistory()">HISTORY</button>
+          <button class="ctrl-btn" onclick="checkBridge()">PING</button>
+          <button class="ctrl-btn" onclick="testSonia()">TEST VOICE</button>
+          <div class="bridge-info">Bridge: <span>:8767</span></div>
+        </div>
       </div>
     </div>
-    <div class="panel-body" id="learning-feed" style="max-height:120px"><div class="no-data">Loading...</div></div>
   </div>
-
 </div>
 
 <div class="footer">
   <div style="display:flex;gap:16px">
     <span>HackerOne: <span style="color:var(--accent);font-weight:bold">kuliex270</span></span>
     <span>Intigriti: <span style="color:var(--accent);font-weight:bold">p0lygl07</span></span>
-    <span>Model: <span style="color:var(--accent);font-weight:bold">qwen3.5:9b @ localhost:11434</span></span>
-    <span>Conductor: <span style="color:var(--accent);font-weight:bold">localhost:8766</span></span>
+    <span>Conductor: <span style="color:var(--accent);font-weight:bold">:8766</span></span>
+    <span>Bridge: <span style="color:var(--accent);font-weight:bold">:8767</span></span>
   </div>
   <span id="last-refresh" style="color:var(--muted)">Last refresh: --</span>
 </div>
 
 <script>
-// ── Clock ────────────────────────────────────────────────────────────────────
-function updateClock() {
-  document.getElementById('clock').textContent = new Date().toTimeString().split(' ')[0];
-}
-setInterval(updateClock, 1000);
-updateClock();
+const BRIDGE = 'http://localhost:8767';
+let voiceModeOn = false;
+let soniaReplyOn = false;
+let isListening = false;
+let recognition = null;
+let currentAudio = null;
 
-// ── Sub-agent control ─────────────────────────────────────────────────────────
-let selectedAgent = null;
+// ── Clock ──────────────────────────────────────────────────────────────────
+function updateClock() { document.getElementById('clock').textContent = new Date().toTimeString().split(' ')[0]; }
+setInterval(updateClock, 1000); updateClock();
 
-function selectAgent(name) {
-  selectedAgent = name;
-  document.querySelectorAll('.agent-btn').forEach(b => b.classList.remove('active'));
-  const map = {
-    'monitor_operative': 'btn-monitor',
-    'sre_engineer': 'btn-sre',
-    'recon_operative': 'btn-recon',
-    'ctf_builder': 'btn-ctf'
-  };
-  const btn = document.getElementById(map[name]);
-  if (btn) btn.classList.add('active');
-  document.getElementById('task-input').placeholder = `Task for ${name}...`;
-  document.getElementById('task-submit').disabled = false;
-  document.getElementById('task-input').focus();
+// ── Chat helpers ───────────────────────────────────────────────────────────
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
 }
 
-async function fireTask() {
-  if (!selectedAgent) {
-    showOutput('ERROR', 'Select a sub-agent first.');
-    return;
-  }
-  const task = document.getElementById('task-input').value.trim();
-  if (!task) {
-    showOutput('ERROR', 'Enter a task.');
-    return;
-  }
+function escapeHtml(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+          .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+}
 
-  const submitBtn = document.getElementById('task-submit');
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'RUNNING...';
+function appendMsg(role, text) {
+  const c = document.getElementById('chat-messages');
+  const d = document.createElement('div');
+  d.className = `chat-msg ${role}`;
+  const sender = role === 'user' ? 'YOU' : 'VERA';
+  d.innerHTML = `<span class="chat-sender">${sender}</span><div class="chat-bubble">${escapeHtml(text)}</div>`;
+  c.appendChild(d);
+  scrollChat();
+}
 
-  showOutput('RUNNING', `Routing to ${selectedAgent}:\n${task}\n\nWaiting for sub-agent response...`);
+function showThinking() {
+  const c = document.getElementById('chat-messages');
+  const d = document.createElement('div');
+  d.className = 'chat-msg assistant'; d.id = 'thinking-msg';
+  d.innerHTML = `<span class="chat-sender">VERA</span>
+    <div class="chat-thinking"><div class="td"></div><div class="td"></div><div class="td"></div></div>`;
+  c.appendChild(d); scrollChat();
+}
+function removeThinking() { const e = document.getElementById('thinking-msg'); if(e) e.remove(); }
+function scrollChat() { const c = document.getElementById('chat-wrap'); c.scrollTop = c.scrollHeight; }
 
-  const payload = {
-    target: selectedAgent,
-    text: task,
-    payload: task,
-    source: 'vera_dashboard',
-    timestamp: new Date().toISOString()
-  };
-
+// ── Sonia voice playback ───────────────────────────────────────────────────
+async function playVERAVoice(text) {
+  if (!soniaReplyOn) return;
   try {
-    // Route through conductor via fetch to local proxy
-    // Note: direct TCP not possible from browser -- use a simple HTTP bridge
-    // The conductor returns results via the IPC socket
-    // For now we show the payload and instruct user to use CLI
-    // TODO: add HTTP bridge endpoint to conductor for browser access
+    // Stop any current audio
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
 
-    // Try to reach conductor status via a simple check
-    showOutput('INFO',
-      `Task queued for ${selectedAgent}:\n${task}\n\n` +
-      `To execute from terminal:\n` +
-      `python src/vera_ipc_client.py -t ${selectedAgent} -m "${task.replace(/"/g, "'")}"` +
-      `\n\nNote: Direct browser-to-TCP not supported. ` +
-      `HTTP bridge coming in next update.\n` +
-      `Conductor status: check PING button above.`
-    );
-  } catch(e) {
-    showOutput('ERROR', `Failed to route task: ${e.message}`);
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'FIRE';
-  }
-}
+    updateVoiceBars(true, 'VERA SPEAKING');
 
-function showOutput(type, text) {
-  const colors = { 'RUNNING': 'var(--warn)', 'ERROR': 'var(--danger)', 'SUCCESS': 'var(--accent)', 'INFO': 'var(--accent2)' };
-  const color = colors[type] || 'var(--text)';
-  document.getElementById('agent-output').innerHTML =
-    `<div class="output-header" style="color:${color}">[${type}] ${new Date().toLocaleTimeString()}</div>` +
-    `<div style="color:var(--text);white-space:pre-wrap">${text}</div>`;
-}
+    const resp = await fetch(`${BRIDGE}/speak`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
 
-// ── Conductor status check ────────────────────────────────────────────────────
-async function checkConductor() {
-  const dot = document.getElementById('conductor-dot');
-  const statusText = document.getElementById('conductor-status-text');
-  statusText.textContent = 'Pinging...';
-
-  // Can't reach TCP from browser directly -- check via dashboard state
-  try {
-    const resp = await fetch('logs/dashboard_state.json?t=' + Date.now());
     if (resp.ok) {
-      const state = await resp.json();
-      if (state.status !== 'OFFLINE') {
-        dot.classList.add('online');
-        statusText.textContent = 'VERA Agent online. Conductor: start separately.';
-      } else {
-        dot.classList.remove('online');
-        statusText.textContent = 'VERA offline';
-      }
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      currentAudio = new Audio(url);
+      currentAudio.onended = () => { updateVoiceBars(false, 'VOICE STANDBY'); };
+      currentAudio.play();
+    } else {
+      updateVoiceBars(false, 'TTS UNAVAILABLE');
     }
   } catch(e) {
-    dot.classList.remove('online');
-    statusText.textContent = 'Cannot reach dashboard state';
+    updateVoiceBars(false, 'BRIDGE OFFLINE');
   }
 }
 
-// ── Dashboard state ───────────────────────────────────────────────────────────
+function updateVoiceBars(active, label) {
+  const bars = document.getElementById('vi-bars');
+  const lbl = document.getElementById('vi-label');
+  bars.style.opacity = active ? '1' : '0.3';
+  lbl.textContent = label;
+  lbl.className = active ? 'vi-label vi-active' : 'vi-label';
+}
+
+async function testSonia() {
+  await playVERAVoice("VERA voice online. Sonia speaking through the dashboard.");
+}
+
+// ── Send chat ──────────────────────────────────────────────────────────────
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('chat-send');
+  const message = input.value.trim();
+  if (!message) return;
+  input.value = '';
+  sendBtn.disabled = true;
+  appendMsg('user', message);
+  showThinking();
+
+  try {
+    const resp = await fetch(`${BRIDGE}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, voice: false })
+    });
+    removeThinking();
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.status === 'ok') {
+        appendMsg('assistant', data.response);
+        if (soniaReplyOn) playVERAVoice(data.response);
+      } else {
+        appendMsg('assistant', `Error: ${data.response}`);
+      }
+    } else {
+      appendMsg('assistant', 'Bridge error. Start: python src/vera_bridge.py');
+    }
+  } catch(e) {
+    removeThinking();
+    appendMsg('assistant', 'Cannot reach VERA bridge. Start: python src/vera_bridge.py');
+  } finally {
+    sendBtn.disabled = false;
+    input.focus();
+  }
+}
+
+// ── Voice input (browser SpeechRecognition) ────────────────────────────────
+function setupRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  const r = new SR();
+  r.continuous = false;
+  r.interimResults = true;
+  r.lang = 'en-US';
+  r.onstart = () => {
+    isListening = true;
+    document.getElementById('mic-btn').className = 'mic-btn listening';
+    updateVoiceBars(true, 'LISTENING...');
+    document.getElementById('chat-input').placeholder = 'Listening...';
+  };
+  r.onresult = (e) => {
+    const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+    document.getElementById('chat-input').value = transcript;
+    if (e.results[e.results.length - 1].isFinal) {
+      setTimeout(() => { if (document.getElementById('chat-input').value.trim()) sendChat(); }, 300);
+    }
+  };
+  r.onend = () => {
+    isListening = false;
+    document.getElementById('mic-btn').className = 'mic-btn';
+    document.getElementById('chat-input').placeholder = 'Type or click mic...';
+    updateVoiceBars(false, soniaReplyOn ? 'VOICE READY' : 'VOICE STANDBY');
+  };
+  r.onerror = (e) => {
+    isListening = false;
+    document.getElementById('mic-btn').className = 'mic-btn';
+    updateVoiceBars(false, 'MIC ERROR');
+    if (e.error === 'not-allowed') appendMsg('assistant', 'Microphone access denied. Allow mic in browser settings.');
+  };
+  return r;
+}
+
+function toggleMic() {
+  if (!voiceModeOn) {
+    appendMsg('assistant', 'Enable voice mode first using the VOICE button.');
+    return;
+  }
+  if (isListening) {
+    if (recognition) recognition.stop();
+  } else {
+    recognition = setupRecognition();
+    if (!recognition) {
+      appendMsg('assistant', 'Speech recognition not supported in this browser. Use Chrome.');
+      return;
+    }
+    recognition.start();
+  }
+}
+
+function toggleVoiceMode() {
+  voiceModeOn = !voiceModeOn;
+  const btn = document.getElementById('voice-toggle');
+  const dot = document.getElementById('voice-dot');
+  const text = document.getElementById('voice-mode-text');
+  if (voiceModeOn) {
+    btn.textContent = '🎙 VOICE ON';
+    btn.classList.add('active');
+    dot.classList.add('on');
+    text.textContent = 'Voice mode: on — click mic to speak';
+    appendMsg('assistant', 'Voice mode enabled. Click the mic button to speak, or press Enter to type.');
+  } else {
+    btn.textContent = '🎙 VOICE OFF';
+    btn.classList.remove('active');
+    dot.classList.remove('on');
+    text.textContent = 'Voice mode: off';
+    if (isListening && recognition) recognition.stop();
+  }
+}
+
+function toggleSoniaReply() {
+  soniaReplyOn = !soniaReplyOn;
+  const btn = document.getElementById('sonia-toggle');
+  if (soniaReplyOn) {
+    btn.textContent = '🔊 SONIA ON';
+    btn.classList.add('active');
+    appendMsg('assistant', 'Sonia voice replies enabled. VERA will speak her responses.');
+    playVERAVoice('Sonia voice enabled. VERA will speak all responses through the dashboard.');
+  } else {
+    btn.textContent = '🔊 SONIA OFF';
+    btn.classList.remove('active');
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  }
+}
+
+// ── Bridge & history ───────────────────────────────────────────────────────
+async function checkBridge() {
+  const badge = document.getElementById('bridge-badge');
+  const text = document.getElementById('bridge-status-text');
+  try {
+    const resp = await fetch(`${BRIDGE}/status`, { signal: AbortSignal.timeout(3000) });
+    if (resp.ok) {
+      const d = await resp.json();
+      badge.textContent = '● ONLINE';
+      badge.className = 'panel-badge badge-green';
+      text.textContent = `Ollama: ${d.ollama} | TTS: ${d.tts}`;
+    }
+  } catch(e) {
+    badge.textContent = '● OFFLINE';
+    badge.className = 'panel-badge badge-red';
+    text.textContent = 'Start: python src/vera_bridge.py';
+  }
+}
+
+async function clearChat() {
+  try { await fetch(`${BRIDGE}/clear`, { method: 'POST' }); } catch(e) {}
+  document.getElementById('chat-messages').innerHTML = `
+    <div class="chat-msg assistant">
+      <span class="chat-sender">VERA</span>
+      <div class="chat-bubble">Session cleared. Ready.</div>
+    </div>`;
+}
+
+async function loadHistory() {
+  try {
+    const resp = await fetch(`${BRIDGE}/history`);
+    if (!resp.ok) return;
+    const d = await resp.json();
+    document.getElementById('chat-messages').innerHTML = '';
+    for (const m of d.history) appendMsg(m.role === 'user' ? 'user' : 'assistant', m.content);
+  } catch(e) { appendMsg('assistant', 'Cannot load history.'); }
+}
+
+// ── Dashboard state ────────────────────────────────────────────────────────
 async function loadDashboardState() {
   try {
-    const resp = await fetch('logs/dashboard_state.json?t=' + Date.now());
-    if (!resp.ok) return;
-    const state = await resp.json();
-
-    document.getElementById('ls-status').textContent = state.status || '--';
+    const r = await fetch('logs/dashboard_state.json?t=' + Date.now());
+    if (!r.ok) return;
+    const s = await r.json();
+    document.getElementById('ls-status').textContent = s.status || '--';
     document.getElementById('ls-status').className = 'state-val ' +
-      (state.status === 'ONLINE' || state.status === 'READY' ? 'online' :
-       state.status === 'OFFLINE' ? 'offline' : 'thinking');
-    document.getElementById('ls-role').textContent = state.active_role || '--';
-    document.getElementById('ls-truth').textContent = state.truth_layer || '--';
-    document.getElementById('ls-thinking').textContent = state.thinking || state.tool_call || '--';
-    document.getElementById('m-verified').textContent = state.verified_calls || 0;
-    document.getElementById('m-fabricated').textContent = state.fabricated_calls || 0;
-    document.getElementById('m-fabrate').textContent = state.fabrication_rate || '0%';
-    document.getElementById('m-uptime').textContent = state.uptime || '--';
-    document.getElementById('role-badge').textContent = '● ' + (state.active_role || 'ORACLE');
-
-    const voiceBars = document.getElementById('voice-bars');
-    const voiceLabel = document.getElementById('voice-label');
-    if (state.status === 'THINKING' || state.status === 'EXECUTING') {
-      voiceBars.style.opacity = '1';
-      voiceLabel.textContent = state.status === 'EXECUTING' ? 'EXECUTING TOOL' : 'VERA THINKING';
-      voiceLabel.className = 'voice-label voice-active';
-    } else {
-      voiceBars.style.opacity = '0.3';
-      voiceLabel.textContent = state.voice_enabled ? 'VOICE STANDBY' : 'VOICE MUTED';
-      voiceLabel.className = 'voice-label';
-    }
-
-    if (state.thinking && state.status !== 'READY') {
+      (s.status === 'ONLINE' || s.status === 'READY' ? 'online' : s.status === 'OFFLINE' ? 'offline' : 'thinking');
+    document.getElementById('ls-role').textContent = s.active_role || '--';
+    document.getElementById('ls-truth').textContent = s.truth_layer || '--';
+    document.getElementById('ls-thinking').textContent = s.thinking || s.tool_call || '--';
+    document.getElementById('m-verified').textContent = s.verified_calls || 0;
+    document.getElementById('m-fabricated').textContent = s.fabricated_calls || 0;
+    document.getElementById('m-fabrate').textContent = s.fabrication_rate || '0%';
+    document.getElementById('m-uptime').textContent = s.uptime || '--';
+    document.getElementById('role-badge').textContent = '● ' + (s.active_role || 'ORACLE');
+    if (s.thinking && s.status !== 'READY') {
       const log = document.getElementById('thinking-log');
-      const entry = document.createElement('div');
-      entry.className = 'thought-entry';
-      entry.innerHTML = `<div class="thought-role">${state.active_role||'VERA'} [${state.truth_layer||'T3'}]</div><div class="thought-text">${state.thinking}</div>`;
-      log.insertBefore(entry, log.firstChild);
-      while (log.children.length > 8) log.removeChild(log.lastChild);
-    }
-
-    const condDot = document.getElementById('conductor-dot');
-    const condText = document.getElementById('conductor-status-text');
-    if (state.status !== 'OFFLINE') {
-      condDot.classList.add('online');
-      condText.textContent = `VERA online (uptime: ${state.uptime||'--'}) | Conductor: port 8766`;
+      const e = document.createElement('div'); e.className = 'thought-entry';
+      e.innerHTML = `<div class="thought-role">${s.active_role||'VERA'} [${s.truth_layer||'T3'}]</div><div class="thought-text">${s.thinking}</div>`;
+      log.insertBefore(e, log.firstChild);
+      while (log.children.length > 6) log.removeChild(log.lastChild);
     }
   } catch(e) {}
 }
 
-// ── Tool log ──────────────────────────────────────────────────────────────────
-function parseExecutionLog(text) {
+function parseLog(text) {
   return text.split('\n').filter(l => l.startsWith('|') && !l.includes('Date') && !l.includes('---'))
-    .map(line => {
-      const parts = line.split('|').map(p => p.trim()).filter(Boolean);
-      if (parts.length >= 4) return { date: parts[0], tool: parts[1], executed: parts[2], result: parts[3], notes: parts[4]||'' };
-      return null;
-    }).filter(Boolean);
-}
-
-function renderToolLog(entries) {
-  const c = document.getElementById('tool-log');
-  if (!entries.length) { c.innerHTML = '<div class="no-data">No tool calls yet</div>'; return; }
-  c.innerHTML = entries.slice(-20).reverse().map(e => {
-    const isV = e.executed==='YES'||e.result.includes('success');
-    const isF = e.executed==='NO'||e.result.includes('fabricated');
-    const sc = isF?'status-fabricated':isV?'status-verified':'status-pending';
-    const st = isF?'BLOCKED':isV?'VERIFIED':'PENDING';
-    const t = e.date.includes(' ')?e.date.split(' ')[1]||e.date:e.date;
-    return `<div class="tool-entry"><span class="tool-time">${t}</span><span class="tool-name">${e.tool}</span><span class="tool-status ${sc}">${st}</span><span class="tool-detail">${e.notes||e.result}</span></div>`;
-  }).join('');
+    .map(l => { const p = l.split('|').map(x=>x.trim()).filter(Boolean); return p.length>=4?{date:p[0],tool:p[1],executed:p[2],result:p[3],notes:p[4]||''}:null; }).filter(Boolean);
 }
 
 async function loadLogs() {
   try {
     const r = await fetch('logs/execution_log.md?t='+Date.now());
-    if (r.ok) renderToolLog(parseExecutionLog(await r.text()));
-  } catch(e) {
-    document.getElementById('tool-log').innerHTML = '<div class="no-data">Start: vera_server.bat then open http://localhost:8765</div>';
-  }
+    if (!r.ok) return;
+    const entries = parseLog(await r.text());
+    const c = document.getElementById('tool-log');
+    if (!entries.length) { c.innerHTML='<div class="no-data">No tool calls yet</div>'; return; }
+    c.innerHTML = entries.slice(-15).reverse().map(e => {
+      const isV=e.executed==='YES'||e.result.includes('success');
+      const isF=e.executed==='NO'||e.result.includes('fabricated');
+      const sc=isF?'status-fabricated':isV?'status-verified':'status-pending';
+      const st=isF?'BLOCKED':isV?'VERIFIED':'PENDING';
+      const t=e.date.includes(' ')?e.date.split(' ')[1]||e.date:e.date;
+      return `<div class="tool-entry"><span class="tool-time">${t}</span><span class="tool-name">${e.tool}</span><span class="tool-status ${sc}">${st}</span><span class="tool-detail">${e.notes||e.result}</span></div>`;
+    }).join('');
+  } catch(e) {}
   document.getElementById('last-refresh').textContent = 'Last refresh: ' + new Date().toLocaleTimeString();
 }
 
-// ── Learning feed ─────────────────────────────────────────────────────────────
 async function loadLearning() {
   try {
     const r = await fetch('memory/learned_knowledge.md?t='+Date.now());
-    if (r.ok) {
-      const text = await r.text();
-      const c = document.getElementById('learning-feed');
-      if (!text.trim()||text.length<20) { c.innerHTML='<div class="no-data">Run vera_learn.py</div>'; return; }
-      const entries = text.split('## [').filter(Boolean).slice(-6).reverse();
-      c.innerHTML = entries.map(e => {
-        const lines = e.split('\n');
-        const h = lines[0]||'';
-        const content = lines.slice(1).join(' ').replace(/---/g,'').trim();
-        return `<div class="learn-entry"><div class="learn-topic">[${h.split(']')[0]}] ${h.split(']')[1]||''}</div><div class="learn-text">${content.substring(0,200)}${content.length>200?'...':''}</div></div>`;
-      }).join('')||'<div class="no-data">No entries</div>';
-    }
+    if (!r.ok) return;
+    const text = await r.text();
+    const c = document.getElementById('learning-feed');
+    if (!text.trim()||text.length<20) { c.innerHTML='<div class="no-data">Run vera_learn.py</div>'; return; }
+    const entries = text.split('## [').filter(Boolean).slice(-4).reverse();
+    c.innerHTML = entries.map(e => {
+      const lines=e.split('\n'); const h=lines[0]||'';
+      const content=lines.slice(1).join(' ').replace(/---/g,'').trim();
+      return `<div class="learn-entry"><div class="learn-topic">[${h.split(']')[0]}] ${h.split(']')[1]||''}</div><div class="learn-text">${content.substring(0,160)}...</div></div>`;
+    }).join('');
   } catch(e) {}
 }
 
-// ── Auto-refresh ──────────────────────────────────────────────────────────────
 setInterval(loadDashboardState, 2000);
 setInterval(loadLogs, 10000);
 setInterval(loadLearning, 30000);
-setInterval(checkConductor, 15000);
-
-loadDashboardState();
-loadLogs();
-loadLearning();
-checkConductor();
+setInterval(checkBridge, 15000);
+loadDashboardState(); loadLogs(); loadLearning(); checkBridge();
 </script>
 </body>
 </html>

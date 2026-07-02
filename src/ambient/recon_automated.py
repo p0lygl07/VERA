@@ -1,5 +1,6 @@
 import psutil, datetime, os
 
+
 def log_to_feed(msg):
     log_path = r"C:\Users\p0ly\Desktop\AI\VERA\logs\live_feed.log"
     os.makedirs(os.path.dirname(log_path), exist_ok=True)
@@ -8,7 +9,8 @@ def log_to_feed(msg):
         # Encode string to bytes before writing
         f.write(f"\n[{datetime.datetime.now().strftime('%H:%M:%S')}] {msg}".encode('utf-8'))
 
-if __name__ == "__main__":
+
+def main():
     log_to_feed("--- VERA RECON_AUTOMATED INITIALIZED ---")
     
     # Simple check for psutil
@@ -25,3 +27,7 @@ if __name__ == "__main__":
         log_to_feed("Running: subfinder -d " + target)
         log_to_feed("Running: httpx -target " + target)
         log_to_feed("Execution Complete: No critical vulnerabilities.")
+
+
+if __name__ == "__main__":
+    main()
