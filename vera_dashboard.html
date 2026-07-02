@@ -22,7 +22,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 .time { color: var(--accent2); font-size: 14px; font-weight: bold; }
 .metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 12px; }
 .metric { background: var(--surface); border: 1px solid var(--border); padding: 10px 12px; text-align: center; }
-.metric-val { font-size: 18px; font-weight: bold; color: var(--accent); line-height: 1; margin-bottom: 4px; }
+.metric-val { font-size: 22px; font-weight: bold; color: var(--accent); line-height: 1; margin-bottom: 4px; }
 .metric-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
 .live-state { background: var(--surface2); border: 1px solid var(--border); padding: 8px 12px; margin-bottom: 12px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .state-item { font-size: 10px; }
@@ -88,7 +88,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 
 /* ── CHAT PANEL ─────────────────────────────────────────── */
 .chat-panel { display: flex; flex-direction: column; }
-.chat-messages-wrap { height: 520px; overflow-y: auto; padding: 10px; background: var(--bg); }
+.chat-messages-wrap { height: 500px; overflow-y: auto; padding: 10px; background: var(--bg); }
 .chat-messages-wrap::-webkit-scrollbar { width: 4px; }
 .chat-messages-wrap::-webkit-scrollbar-thumb { background: var(--border); }
 .chat-messages { display: flex; flex-direction: column; gap: 10px; }
@@ -136,6 +136,12 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 .ctrl-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--font); font-size: 10px; padding: 2px 8px; cursor: pointer; }
 .ctrl-btn:hover { border-color: var(--accent); color: var(--accent); }
 .bridge-info { margin-left: auto; font-size: 10px; color: var(--muted); }
+.exec-btn { background: #1a0f00; border: 1px solid var(--warn); color: var(--warn); font-family: var(--font); font-size: 10px; padding: 2px 8px; cursor: pointer; font-weight: bold; }
+.exec-btn:hover { background: #2a1a00; }
+.exec-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.exec-result { background: var(--bg); border: 1px solid var(--border); border-left: 2px solid var(--warn); padding: 8px; margin-top: 6px; font-size: 11px; color: var(--accent2); white-space: pre-wrap; word-break: break-word; max-height: 120px; overflow-y: auto; display: none; }
+.exec-result.visible { display: block; }
+
 .bridge-info span { color: var(--accent); }
 
 .footer { margin-top: 12px; padding: 8px 12px; border: 1px solid var(--border); background: var(--surface); display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--muted); }
@@ -283,8 +289,10 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
           <button class="ctrl-btn" onclick="loadHistory()">HISTORY</button>
           <button class="ctrl-btn" onclick="checkBridge()">PING</button>
           <button class="ctrl-btn" onclick="testSonia()">TEST VOICE</button>
+          <button class="exec-btn" id="exec-btn" onclick="executeTask()">⚡ EXECUTE</button>
           <div class="bridge-info">Bridge: <span>:8767</span></div>
         </div>
+          <div class="exec-result" id="exec-result"></div>
       </div>
     </div>
   </div>
@@ -630,6 +638,57 @@ async function loadLearning() {
       return `<div class="learn-entry"><div class="learn-topic">[${h.split(']')[0]}] ${h.split(']')[1]||''}</div><div class="learn-text">${content.substring(0,160)}...</div></div>`;
     }).join('');
   } catch(e) {}
+}
+
+
+// ── Execute via conductor ──────────────────────────────────────────────────
+async function executeTask() {
+  const input = document.getElementById('chat-input');
+  const task = input.value.trim();
+  const execBtn = document.getElementById('exec-btn');
+  const execResult = document.getElementById('exec-result');
+
+  if (!task) {
+    appendMsg('assistant', 'Type a task in the input field then click EXECUTE to route it to a sub-agent.');
+    return;
+  }
+
+  input.value = '';
+  execBtn.disabled = true;
+  execBtn.textContent = '⚡ ROUTING...';
+  execResult.className = 'exec-result';
+
+  appendMsg('user', `[EXECUTE] ${task}`);
+  showThinking();
+
+  try {
+    const resp = await fetch(`${BRIDGE}/execute`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ task })
+    });
+
+    removeThinking();
+    const data = await resp.json();
+    const target = data.target || 'sub-agent';
+
+    if (data.status === 'ok' && data.result) {
+      const preview = data.result.substring(0, 200);
+      appendMsg('assistant', `Routed to ${target}. Result preview:`);
+      execResult.textContent = data.result;
+      execResult.className = 'exec-result visible';
+      if (soniaReplyOn) playVERAVoice(`Task complete via ${target}.`);
+    } else {
+      appendMsg('assistant', `Execution error: ${data.result || data.error || 'unknown'}`);
+    }
+  } catch(e) {
+    removeThinking();
+    appendMsg('assistant', `Cannot reach bridge for execution: ${e.message}`);
+  } finally {
+    execBtn.disabled = false;
+    execBtn.textContent = '⚡ EXECUTE';
+    input.focus();
+  }
 }
 
 setInterval(loadDashboardState, 2000);
