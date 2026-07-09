@@ -181,9 +181,6 @@ The question is not whether this is possible. The question is who does it first,
 Cybersecurity Researcher  
 SNHU / HackerOne: kuliex270 / Intigriti: p0lygl07
 
-**CLAUDE (ANTHROPIC)**  
-Sonnet 4.6 // June 30, 2026
-
 ---
 
 *// END OF DOCUMENT // v1.0 // JUNE 2026 // OPEN SOURCE //*
