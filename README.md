@@ -12,7 +12,7 @@ Current AI agents describe actions instead of taking them.
 VERA verifies execution before claiming completion.
 
 ## Stack
-- Local inference: Ollama (qwen3.5:9b)
+- Local inference: Ollama (omega:latest)
 - Execution harness: Python
 - Memory: Obsidian-compatible Markdown + SQLite
 - Skills: SKILL.md pattern
