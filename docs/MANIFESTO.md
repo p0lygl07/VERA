@@ -2,7 +2,7 @@
 ### A Framework for Building AI That Acts, Not Just Speaks
 
 **v1.0 // JUNE 30, 2026**  
-**Authors: Joshua Burton & Claude (Anthropic)**
+**Authors: Joshua Burton**
 
 ---
 
