@@ -1,0 +1,20 @@
+import time, os
+
+
+def main():
+    path = r'C:\Users\P01yG107\Desktop\vera\logs\live_feed.log'
+    print("--- VERA LINK ACTIVE (SIG-SAFE) ---")
+    last_seen = ""
+    while True:
+        if os.path.exists(path):
+            # 'utf-8-sig' automatically handles files that have BOM headers
+            with open(path, 'r', encoding='utf-8-sig') as f:
+                content = f.read()
+                if content != last_seen:
+                    print(content)
+                    last_seen = content
+        time.sleep(1)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,39 @@
+# VERA rebuild — requirements.txt
+# Generated from actual imports across the codebase (core/, src/, skills/), not the old
+# committed vera_env venv. Versions are current-latest as of pull date; pin harder once
+# the rebuild is stable if any of these break compatibility with each other.
+
+requests==2.34.2
+numpy==2.4.6
+psutil==7.2.2
+watchdog==6.0.0
+
+# Vision / image / OCR — pytesseract also needs the Tesseract OCR binary installed
+# separately (not pip-installable): https://github.com/tesseract-ocr/tesseract
+Pillow==12.3.0
+opencv-python==5.0.0.93
+pytesseract==0.3.13
+
+# Audio — pyaudio can need a prebuilt wheel on Windows rather than a source build
+pyaudio==0.2.14
+sounddevice==0.5.6
+soundfile==0.14.0
+faster-whisper==1.2.1
+edge-tts==7.2.8
+
+# Browser automation
+selenium==4.48.0
+webdriver-manager==4.1.2
+
+# Parsing / scraping
+beautifulsoup4==4.15.0
+feedparser==6.0.14
+
+# Agent orchestration + vector memory
+smolagents==1.26.0
+chromadb==1.5.9
+
+# vera_sov sandbox engine (run_recursive_task tool) -- uses the native
+# ollama client, not the requests-based OpenAI-compatible calls vera_agent.py
+# uses elsewhere. Same Ollama server, different client library.
+ollama==0.6.1

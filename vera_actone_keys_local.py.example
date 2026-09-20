@@ -1,0 +1,10 @@
+ACTONE_DEVICE_KEYS = {
+    "KYGER": bytes.fromhex("PLACEHOLDER"),
+    "BB8":   bytes.fromhex("PLACEHOLDER"),
+    "ARM":   bytes.fromhex("PLACEHOLDER"),
+    # PLACEHOLDER -- not a real key yet. Generate one the same way as the
+    # others (`python -c "import secrets; print(secrets.token_hex(32))"`)
+    # before this device is actually wired up; a repeated all-same-byte
+    # key like this is the first thing anyone would guess.
+    "MARAUDER": bytes.fromhex("33" * 32),
+}

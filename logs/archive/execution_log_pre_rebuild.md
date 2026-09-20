@@ -1,0 +1,378 @@
+
+
+<!-- archived 2026-09-05 -->
+# VERA Execution Log
+## Purpose: Track every tool call outcome for training dataset
+
+| Date | Tool | Executed | Result | Notes |
+|------|------|----------|--------|-------|
+| 2026-06-30 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\src\vera_verify.py exists with 4632 bytes |
+| 2026-06-30 | file_write | NO | fabricated | claimed to write /nonexistent/path/fake.txt but file does not exist |
+| 2026-06-30 | shell_command | YES | success | command produced 10 chars of output |
+| 2026-06-30 | execute_command | NO | fabricated | tool 'execute_command' not in registered schema — fabrication prevented |
+| 2026-06-30 | file_write | YES | success | verified memory\test.md exists with 15 bytes |
+| 2026-06-30 | web_search | YES | success | query: latest bug bounty tips web application vulnerabili |
+| 2026-06-30 | web_search | YES | success | query: bug bounty program best practices web application  |
+| 2026-06-30 | web_search | YES | success | query: bug bounty web application testing tools reconnais |
+| 2026-06-30 | web_search | YES | success | query: bug bounty tips XSS SQLi CSRF authentication bypas |
+| 2026-06-30 | list_directory | YES | success | listed 4 entries |
+| 2026-06-30 | read_skill | YES | success | loaded skill: bug-bounty-recon |
+| 2026-06-30 | session_memory | YES | saved | saved 3 messages to memory |
+| 2026-06-30 | file_write | YES | success | verified memory/operational_profile.md exists with 602 bytes |
+| 2026-06-30 | file_write | YES | success | verified memory/operational_profile.md exists with 987 bytes |
+| 2026-06-30 | file_write | YES | success | verified memory/operational_profile.md exists with 1152 bytes |
+| 2026-06-30 | file_write | YES | success | verified memory/operational_profile.md exists with 1312 bytes |
+| 2026-06-30 | file_write | YES | success | verified memory/operational_profile.md exists with 1727 bytes |
+| 2026-06-30 | file_write | YES | success | verified memory/operational_profile.md exists with 2267 bytes |
+| 2026-06-30 | file_write | YES | success | verified memory/operational_profile.md exists with 2564 bytes |
+| 2026-06-30 | file_write | YES | success | verified memory/operational_profile.md exists with 2868 bytes |
+| 2026-06-30 | file_write | YES | success | verified memory/operational_profile.md exists with 5152 bytes |
+| 2026-06-30 | read_file | NO | not_found | path: SOUL.md |
+| 2026-06-30 | read_file | YES | success | read 194 chars from memory/SOUL.md |
+| 2026-06-30 | file_write | YES | success | verified memory/SOUL.md exists with 1678 bytes |
+| 2026-06-30 | read_file | NO | not_found | path: memory/session_summary.md |
+| 2026-06-30 | read_file | NO | not_found | path: SOUL.md |
+| 2026-06-30 | session_memory | YES | saved | saved 1 messages to memory |
+| 2026-06-30 | shell_command | YES | success | command produced 97 chars of output |
+| 2026-06-30 | shell_command | YES | success | command produced 97 chars of output |
+| 2026-06-30 | shell_command | YES | success | command produced 74 chars of output |
+| 2026-06-30 | shell_command | YES | success | command produced 100 chars of output |
+| 2026-06-30 | shell_command | YES | success | command produced 67 chars of output |
+| 2026-06-30 | shell_command | YES | success | command produced 104 chars of output |
+| 2026-06-30 | shell_command | YES | success | command produced 16 chars of output |
+| 2026-06-30 | shell_command | YES | success | command produced 102 chars of output |
+| 2026-06-30 | shell_command | YES | success | command produced 97 chars of output |
+| 2026-06-30 | list_directory | YES | success | listed 12 entries |
+| 2026-06-30 | list_directory | YES | success | listed 7 entries |
+| 2026-06-30 | list_directory | YES | success | listed 1 entries |
+| 2026-06-30 | read_file | YES | success | read 320 chars from memory/latest_briefing.md |
+| 2026-06-30 | read_file | YES | success | read 336 chars from memory/session_memory.md |
+| 2026-06-30 | list_directory | YES | success | listed 5 entries |
+| 2026-06-30 | list_directory | YES | success | listed 1 entries |
+| 2026-06-30 | list_directory | YES | success | listed 2 entries |
+| 2026-06-30 | read_file | YES | success | read 903 chars from logs/alerts.md |
+| 2026-06-30 | web_search | YES | success | query: Ping Identity bug bounty report 3797290 update ext |
+| 2026-06-30 | read_file | YES | success | read 1647 chars from memory/SOUL.md |
+| 2026-06-30 | read_file | YES | success | read 405 chars from memory/USER.md |
+| 2026-06-30 | read_file | YES | success | read 4465 chars from logs/execution_log.md |
+| 2026-06-30 | file_write | YES | success | verified docs/ping_identity_update_request.md exists with 1925 bytes |
+| 2026-06-30 | file_write | YES | success | verified memory/session_summary.md exists with 887 bytes |
+| 2026-06-30 | file_write | YES | success | verified memory/session_summary.md exists with 978 bytes |
+| 2026-06-30 | file_write | YES | success | verified logs/alerts.md exists with 1988 bytes |
+| 2026-06-30 | session_memory | YES | saved | saved 2 messages to memory |
+| 2026-07-01 | session_memory | YES | saved | 1 messages |
+| 2026-07-01 | system_info | YES | success | system info retrieved |
+| 2026-07-01 | network_status | YES | success | network status retrieved |
+| 2026-07-01 | search_files | YES | success | found 5 matches |
+| 2026-07-01 | system_info | YES | success | system info retrieved |
+| 2026-07-01 | network_status | YES | success | network status retrieved |
+| 2026-07-01 | session_memory | YES | saved | 2 messages |
+| 2026-07-01 | list_directory | NO | not_found | path: C:\Users\JoshuaBurton |
+| 2026-07-01 | list_directory | YES | success | listed 12 entries |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\Public\Documents\VERA_Architecture.md exists with 1567 bytes |
+| 2026-07-01 | shell_command | YES | success | command produced 259 chars of output |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\Public\Documents\VERA_Architecture\memory\execution_log.md exists with 521 bytes |
+| 2026-07-01 | shell_command | YES | success | command produced 102 chars of output |
+| 2026-07-01 | search_files | YES | success | found 1 matches |
+| 2026-07-01 | session_memory | YES | saved | 13 messages |
+| 2026-07-01 | read_file | NO | exception | [Errno 13] Permission denied: 'C:\\Users\\p0ly\\Documents\\Obsidian Vault' |
+| 2026-07-01 | list_directory | YES | success | listed 5 entries |
+| 2026-07-01 | read_file | YES | success | read 86968 chars from C:\Users\p0ly\Documents\Obsidian Vault\Vera Build Log.md |
+| 2026-07-01 | file_write | YES | success | verified memory/vera_decisions.md exists with 4386 bytes |
+| 2026-07-01 | list_directory | YES | success | listed 12 entries |
+| 2026-07-01 | read_file | YES | success | read 4266 chars from memory/vera_decisions.md |
+| 2026-07-01 | list_directory | YES | success | listed 10 entries |
+| 2026-07-01 | read_file | YES | success | read 12484 chars from src/vera_voice.py |
+| 2026-07-01 | shell_command | YES | success | command produced 97 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 97 chars of output |
+| 2026-07-01 | session_memory | YES | saved | 7 messages |
+| 2026-07-01 | read_file | NO | not_found | path: execution_log.md |
+| 2026-07-01 | list_directory | YES | success | listed 24 entries |
+| 2026-07-01 | list_directory | YES | success | listed 24 entries |
+| 2026-07-01 | system_info | YES | success | system info retrieved |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Documents\execution_log.md exists with 1028 bytes |
+| 2026-07-01 | run_shell_command | NO | user_declined | command: powershell -Command "mkdir C:\Users\p0ly\Documents\src\sandbox_test" 2>&1 | Out-String; mkdir C:\Users\p0ly\Documents\src\sandbox_test\configs, sandbox_test\data, sandbox_test\logs, sandbox_test\outputs" |
+| 2026-07-01 | run_shell_command | NO | user_declined | command: powershell -Command "mkdir C:\Users\p0ly\Documents\sandbox_test; mkdir C:\Users\p0ly\Documents\sandbox_test\configs, sandbox_test\data, sandbox_test\logs" 2>&1 | Out-String" |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Documents\sandbox_test\configs\voice_state.txt exists with 174 bytes |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Documents\sandbox_test\configs\vera_prefs.json exists with 285 bytes |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Documents\sandbox_test\data\backup_manifest.txt exists with 630 bytes |
+| 2026-07-01 | search_files | NO | exception | [WinError 3] The system cannot find the path specified: 'C:\\Users\\p0ly\\AppData\\Local\\Packages\\Claude_pzs8sxrjxfjjc\\LocalCache\\Roaming\\Claude\\local-agent-mode-sessions\\78292027-7c86-467d-869c-db71964d43d3\\734f6853-cad1-4717-8130-5efaf76e9a3c\\rpm\\plugin_0155zZVATbJU3jHUmPP9NvMC\\skills\\cowork-plugin-customizer\\examples' |
+| 2026-07-01 | list_directory | YES | success | listed 27 entries |
+| 2026-07-01 | file_write | YES | success | verified src/sandbox_test/vera_prefs.json exists with 290 bytes |
+| 2026-07-01 | session_memory | YES | saved | 36 messages |
+| 2026-07-01 | file_write | YES | success | verified ./src/sandbox_test/coprocessor_bridge.md exists with 58 bytes |
+| 2026-07-01 | file_write | YES | success | verified ./src/sandbox_test/vera_prefs.json exists with 137 bytes |
+| 2026-07-01 | file_write | YES | success | verified ./src/sandbox_test/voice_state.py exists with 1340 bytes |
+| 2026-07-01 | file_write | YES | success | verified ./src/sandbox_test/test_runner.py exists with 953 bytes |
+| 2026-07-01 | read_file | NO | not_found | path: ./execution_log.md |
+| 2026-07-01 | file_write | YES | success | verified ./execution_log.md exists with 899 bytes |
+| 2026-07-01 | shell_command | YES | success | command produced 43 chars of output |
+| 2026-07-01 | file_write | YES | success | verified C:/Users/p0ly/Documents/execution_log.md exists with 654 bytes |
+| 2026-07-01 | session_memory | YES | saved | 10 messages |
+| 2026-07-01 | read_file | NO | not_found | path: ./src/sandbox_test/cognitive_dream_loop.py |
+| 2026-07-01 | run_shell_command | NO | user_declined | command: mkdir -p ./src/sandbox_test && type nul > .\src\sandbox_test\cognitive_dream_loop.py 2>&1 || (echo '#!/usr/bin/env python3' | tee .\src\sandbox_test\cognitive_dream_loop.py) |
+| 2026-07-01 | file_write | YES | success | verified ./src/sandbox_test/cognitive_dream_loop.py exists with 1874 bytes |
+| 2026-07-01 | shell_command | YES | success | command produced 328 chars of output |
+| 2026-07-01 | file_write | YES | success | verified ./src/sandbox_test/cognitive_dream_loop.py exists with 1910 bytes |
+| 2026-07-01 | shell_command | YES | success | command produced 243 chars of output |
+| 2026-07-01 | file_write | YES | success | verified C:/Users/p0ly/Documents/Obsidian Vault/VERA_Brain_Log.md exists with 1300 bytes |
+| 2026-07-01 | session_memory | YES | saved | 6 messages |
+| 2026-07-01 | file_write | YES | success | verified ./src/sandbox_test/cognitive_dream_loop.py exists with 2500 bytes |
+| 2026-07-01 | read_file | YES | success | read 11193 chars from C:/Users/p0ly/Documents/Obsidian Vault/VERA_Brain_Log.md |
+| 2026-07-01 | shell_command | YES | success | command produced 357 chars of output |
+| 2026-07-01 | session_memory | YES | saved | 5 messages |
+| 2026-07-01 | file_write | YES | success | verified C:/Users/p0ly/Documents/Obsidian Vault/VERA_Brain_Log.md exists with 1517 bytes |
+| 2026-07-01 | search_files | YES | success | found 4 matches |
+| 2026-07-01 | read_file | YES | success | read 86968 chars from C:/Users/p0ly/Documents/Obsidian Vault/Vera Build Log.md |
+| 2026-07-01 | read_file | YES | success | read 4084 chars from C:/Users/p0ly/Desktop/AI/VERA/logs/alerts.md |
+| 2026-07-01 | network_status | YES | success | network status retrieved |
+| 2026-07-01 | system_info | YES | success | system info retrieved |
+| 2026-07-01 | list_processes | YES | success | listed 286 processes |
+| 2026-07-01 | list_directory | NO | not_found | path: C:\Users\Joshua\Documents |
+| 2026-07-01 | list_directory | NO | not_found | path: C:\Users\Joshua |
+| 2026-07-01 | list_directory | YES | success | listed 7 entries |
+| 2026-07-01 | get_file_tree | YES | success | tree of C:\Users\p0ly |
+| 2026-07-01 | list_directory | NO | not_found | path: C:\Users\Joshua_Burton |
+| 2026-07-01 | system_info | YES | success | system info retrieved |
+| 2026-07-01 | list_directory | YES | success | listed 7 entries |
+| 2026-07-01 | list_directory | YES | success | listed 64 entries |
+| 2026-07-01 | search_files | YES | success | found 9 matches |
+| 2026-07-01 | read_file | YES | success | read 1477 chars from C:/Users/p0ly/Documents/Obsidian Vault/VERA_Brain_Log.md |
+| 2026-07-01 | read_file | YES | success | read 640 chars from C:/Users/p0ly/Documents/execution_log.md |
+| 2026-07-01 | read_file | NO | not_found | path: C:/Users/p0ly/Documents/Obsidian Vault/VERA_Request.md |
+| 2026-07-01 | list_directory | YES | success | listed 6 entries |
+| 2026-07-01 | list_directory | NO | not_found | path: C:/Users/p0ly/Documents/src/sandbox_test/ |
+| 2026-07-01 | shell_command | YES | success | command produced 97 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 84 chars of output |
+| 2026-07-01 | session_memory | YES | saved | 9 messages |
+| 2026-07-01 | list_directory | YES | success | listed 0 entries |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Documents\src\sandbox_test\daemon_monitor.py exists with 3196 bytes |
+| 2026-07-01 | shell_command | YES | success | command produced 102 chars of output |
+| 2026-07-01 | shell_command | NO | failed | command returned 255 with no output |
+| 2026-07-01 | run_shell_command | NO | user_declined | command: python --version 2>&1; echo "Python path verified" |
+| 2026-07-01 | shell_command | YES | success | command produced 885 chars of output |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Documents\src\sandbox_test\daemon_monitor.py exists with 3246 bytes |
+| 2026-07-01 | read_file | NO | not_found | path: C:\Users\p0ly\Documents\src\sandbox_test\ctf_topology.json |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Documents\src\sandbox_test\ctf_topology.json exists with 350 bytes |
+| 2026-07-01 | session_memory | YES | saved | 27 messages |
+| 2026-07-01 | file_write | YES | success | verified VERA_SYSTEM_LOG.md exists with 10012 bytes |
+| 2026-07-01 | read_file | NO | not_found | path: memory/vera_quickstart.md |
+| 2026-07-01 | read_file | NO | not_found | path: $HOME/Desktop/AI/VERA/vera_dashboard.html |
+| 2026-07-01 | session_memory | YES | saved | 12 messages |
+| 2026-07-01 | system_info | YES | success | system info retrieved |
+| 2026-07-01 | list_processes | YES | success | listed 288 processes |
+| 2026-07-01 | list_directory | NO | not_found | path: /home/joshua |
+| 2026-07-01 | list_directory | YES | success | listed 22 entries |
+| 2026-07-01 | list_directory | YES | success | listed 7 entries |
+| 2026-07-01 | list_directory | YES | success | listed 64 entries |
+| 2026-07-01 | list_directory | NO | not_found | path: /Users/p0ly/AppData/Local/.vera |
+| 2026-07-01 | list_directory | YES | success | listed 28 entries |
+| 2026-07-01 | file_write | YES | success | verified /Users/p0ly/Documents/dashboard_state.json exists with 992 bytes |
+| 2026-07-01 | shell_command | YES | success | command produced 97 chars of output |
+| 2026-07-01 | session_memory | YES | saved | 7 messages |
+| 2026-07-01 | shell_command | YES | success | command produced 580 chars of output |
+| 2026-07-01 | read_skill | YES | success | skill: bug-bounty-recon |
+| 2026-07-01 | read_file | YES | success | read 12050 chars |
+| 2026-07-01 | session_memory | YES | saved | 10 messages |
+| 2026-07-01 | read_file | NO | not_found | path: C:\Users\p0ly\Desktop\AI\VERA\checkpoint.md |
+| 2026-07-01 | list_directory | YES | success | listed 22 entries |
+| 2026-07-01 | list_directory | YES | success | listed 14 entries |
+| 2026-07-01 | read_file | YES | success | read 6441 chars |
+| 2026-07-01 | session_memory | YES | saved | 10 messages |
+| 2026-07-01 | list_directory | YES | success | listed 22 entries |
+| 2026-07-01 | network_status | YES | success | network status retrieved |
+| 2026-07-01 | read_file | NO | not_found | path: C:\Users\p0ly\Desktop\AI\VERA\manifest.json |
+| 2026-07-01 | list_directory | YES | success | listed 5 entries |
+| 2026-07-01 | search_files | YES | success | found 1 matches |
+| 2026-07-01 | shell_command | YES | success | command produced 0 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 202 chars of output |
+| 2026-07-01 | search_files | YES | success | found 1 matches |
+| 2026-07-01 | shell_command | YES | success | command produced 0 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 483 chars of output |
+| 2026-07-01 | session_memory | YES | saved | 31 messages |
+| 2026-07-01 | search_files | YES | success | found 1 matches |
+| 2026-07-01 | read_file | YES | success | read 1027 chars |
+| 2026-07-01 | shell_command | YES | success | command produced 399 chars of output |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\src\recon_automated.py exists with 1112 bytes |
+| 2026-07-01 | run_shell_command | NO | user_declined | cmd: python "C:\Users\p0ly\Desktop\AI\VERA\src\recon_automated.py" |
+| 2026-07-01 | open_application | YES | success | opened: terminal |
+| 2026-07-01 | shell_command | YES | success | command produced 0 chars of output |
+| 2026-07-01 | read_file | YES | success | read 915 chars |
+| 2026-07-01 | search_files | YES | success | found 1 matches |
+| 2026-07-01 | read_file | YES | success | read 731 chars |
+| 2026-07-01 | run_shell_command | NO | user_declined | cmd: python C:\Users\p0ly\Desktop\AI\VERA\src\port_scanner.py |
+| 2026-07-01 | open_application | YES | success | opened: terminal |
+| 2026-07-01 | read_file | YES | success | read 731 chars |
+| 2026-07-01 | shell_command | YES | success | command produced 0 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 0 chars of output |
+| 2026-07-01 | session_memory | YES | saved | 6 messages |
+| 2026-07-01 | search_files | YES | success | found 1 matches |
+| 2026-07-01 | search_files | YES | success | found 1 matches |
+| 2026-07-01 | read_file | YES | success | read 215 chars |
+| 2026-07-01 | read_file | YES | success | read 597 chars |
+| 2026-07-01 | shell_command | YES | success | command produced 0 chars of output |
+| 2026-07-01 | list_directory | YES | success | listed 5 entries |
+| 2026-07-01 | shell_command | YES | success | command produced 0 chars of output |
+| 2026-07-01 | list_directory | YES | success | listed 5 entries |
+| 2026-07-01 | read_file | NO | not_found | path: C:\Users\p0ly\Desktop\AI\VERA\skills\self_check.py |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\skills\self_check.py exists with 255 bytes |
+| 2026-07-01 | shell_command | YES | success | command produced 0 chars of output |
+| 2026-07-01 | read_file | YES | success | read 170 chars |
+| 2026-07-01 | search_files | YES | success | found 1 matches |
+| 2026-07-01 | read_file | YES | success | read 699 chars |
+| 2026-07-01 | shell_command | YES | success | command produced 0 chars of output |
+| 2026-07-01 | read_file | YES | success | read 170 chars |
+| 2026-07-01 | search_files | YES | success | found 1 matches |
+| 2026-07-01 | read_file | YES | success | read 1036 chars |
+| 2026-07-01 | read_file | NO | not_found | path: C:\Users\p0ly\Desktop\AI\VERA\memory\evolution.md |
+| 2026-07-01 | session_memory | YES | saved | 7 messages |
+| 2026-07-01 | search_files | YES | success | found 1 matches |
+| 2026-07-01 | read_file | YES | success | read 3396 chars |
+| 2026-07-01 | list_directory | NO | not_found | path: C:\Users\p0ly\Desktop\AI\VERA\data\sandbox_workspace |
+| 2026-07-01 | shell_command | YES | success | command produced 40 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 0 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 0 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 0 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 628 chars of output |
+| 2026-07-01 | list_directory | YES | success | listed 0 entries |
+| 2026-07-01 | shell_command | YES | success | command produced 28 chars of output |
+| 2026-07-01 | list_directory | YES | success | listed 1 entries |
+| 2026-07-01 | session_memory | YES | saved | 10 messages |
+| 2026-07-01 | open_application | YES | success | opened: terminal |
+| 2026-07-01 | shell_command | YES | success | command produced 179 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 34 chars of output |
+| 2026-07-01 | list_directory | YES | success | listed 0 entries |
+| 2026-07-01 | shell_command | YES | success | command produced 116 chars of output |
+| 2026-07-01 | session_memory | YES | saved | 14 messages |
+| 2026-07-01 | list_directory | YES | success | listed 1 entries |
+| 2026-07-01 | read_file | YES | success | read 1307 chars |
+| 2026-07-01 | shell_command | YES | success | command produced 508 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 0 chars of output |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\core\selenium_runner.py exists with 1632 bytes |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\core\selenium_test.py exists with 869 bytes |
+| 2026-07-01 | shell_command | YES | success | command produced 319 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 174 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 338 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 222 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 3707 chars of output |
+| 2026-07-01 | session_memory | YES | saved | 3 messages |
+| 2026-07-01 | list_directory | YES | success | listed 5 entries |
+| 2026-07-01 | read_file | YES | success | read 22277 chars |
+| 2026-07-01 | read_file | YES | success | read 1587 chars |
+| 2026-07-01 | shell_command | YES | success | command produced 511 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 511 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 511 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 685 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 476 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 202 chars of output |
+| 2026-07-01 | session_memory | YES | saved | 11 messages |
+| 2026-07-01 | shell_command | YES | success | command produced 267 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 179 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 440 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 116 chars of output |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\selenium_test.py exists with 248 bytes |
+| 2026-07-01 | shell_command | YES | success | command produced 55 chars of output |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\selenium_web_test.py exists with 2790 bytes |
+| 2026-07-01 | shell_command | YES | success | command produced 950 chars of output |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\selenium_web_test.py exists with 2804 bytes |
+| 2026-07-01 | shell_command | YES | success | command produced 494 chars of output |
+| 2026-07-01 | session_memory | YES | saved | 4 messages |
+| 2026-07-01 | list_directory | YES | success | listed 33 entries |
+| 2026-07-01 | list_directory | YES | success | listed 3 entries |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\core\audio_smoke_test.py exists with 942 bytes |
+| 2026-07-01 | shell_command | YES | success | command produced 118 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 179 chars of output |
+| 2026-07-01 | session_memory | YES | saved | 13 messages |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\logs\todo_resume.md exists with 707 bytes |
+| 2026-07-01 | shell_command | YES | success | command produced 74 chars of output |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\data\identity_log.md exists with 3762 bytes |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\data\reasoning_context.md exists with 4764 bytes |
+| 2026-07-01 | session_memory | YES | saved | 7 messages |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\data\identity_profile.md exists with 1457 bytes |
+| 2026-07-01 | web_search | YES | success | query: best mini PC under $700 2026 local AI inference GP |
+| 2026-07-01 | web_search | YES | success | query: mini PC $500-700 Ryzen AI NPU 2026 recommendations |
+| 2026-07-01 | read_file | YES | success | read 1142 chars |
+| 2026-07-01 | read_file | YES | success | read 1733 chars |
+| 2026-07-01 | session_memory | YES | saved | 10 messages |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\src\vera_ipc_client.py exists with 5028 bytes |
+| 2026-07-01 | read_file | YES | success | read 1853 chars |
+| 2026-07-01 | read_file | YES | success | read 8394 chars |
+| 2026-07-01 | read_file | YES | success | read 4390 chars |
+| 2026-07-01 | read_file | YES | success | read 6537 chars |
+| 2026-07-01 | shell_command | YES | success | command produced 469 chars of output |
+| 2026-07-01 | read_file | YES | success | read 11960 chars |
+| 2026-07-01 | session_memory | YES | saved | 6 messages |
+| 2026-07-01 | read_file | YES | success | read 12442 chars |
+| 2026-07-01 | network_status | YES | success | network status retrieved |
+| 2026-07-01 | list_directory | YES | success | listed 8 entries |
+| 2026-07-01 | session_memory | YES | saved | 3 messages |
+| 2026-07-01 | read_file | YES | success | read 699 chars |
+| 2026-07-01 | read_file | YES | success | read 781 chars |
+| 2026-07-01 | read_file | YES | success | read 1036 chars |
+| 2026-07-01 | read_file | NO | not_found | path: C:\Users\p0ly\Desktop\AI\VERA\vera_watch.py |
+| 2026-07-01 | read_file | NO | not_found | path: C:\Users\p0ly\Desktop\AI\VERA\vera_agent.py |
+| 2026-07-01 | list_directory | YES | success | listed 34 entries |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\vera_watch.py exists with 724 bytes |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\vera_tools.py exists with 1884 bytes |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\vera_agent.py exists with 2230 bytes |
+| 2026-07-01 | read_file | NO | not_found | path: C:\Users\p0ly\Desktop\AI\VERA\Soul.md |
+| 2026-07-01 | list_directory | YES | success | listed 14 entries |
+| 2026-07-01 | session_memory | YES | saved | 2 messages |
+| 2026-07-01 | list_directory | YES | success | listed 17 entries |
+| 2026-07-01 | shell_command | YES | success | command produced 0 chars of output |
+| 2026-07-01 | list_directory | YES | success | listed 4 entries |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\src\vera_ambient_stack.py exists with 2346 bytes |
+| 2026-07-01 | read_file | YES | success | read 588 chars |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\VERA.bat exists with 789 bytes |
+| 2026-07-01 | session_memory | YES | saved | 1 messages |
+| 2026-07-01 | read_file | YES | success | read 457 chars |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\src\ambient\listener.py exists with 580 bytes |
+| 2026-07-01 | read_file | YES | success | read 787 chars |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\src\ambient\observer_daemon.py exists with 853 bytes |
+| 2026-07-01 | read_file | YES | success | read 820 chars |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\src\ambient\port_scanner.py exists with 878 bytes |
+| 2026-07-01 | read_file | YES | success | read 1083 chars |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\src\ambient\recon_automated.py exists with 1143 bytes |
+| 2026-07-01 | session_memory | YES | saved | 5 messages |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\designs\future_sub_agents.md exists with 4624 bytes |
+| 2026-07-01 | read_file | YES | success | read 4519 chars |
+| 2026-07-01 | session_memory | YES | saved | 7 messages |
+| 2026-07-01 | search_files | YES | success | found 761 matches |
+| 2026-07-01 | read_file | YES | success | read 7739 chars |
+| 2026-07-01 | list_directory | YES | success | listed 8 entries |
+| 2026-07-01 | read_file | YES | success | read 7549 chars |
+| 2026-07-01 | session_memory | YES | saved | 15 messages |
+| 2026-07-01 | session_memory | YES | saved | 2 messages |
+| 2026-07-01 | network_status | YES | success | network status retrieved |
+| 2026-07-01 | shell_command | YES | success | command produced 413 chars of output |
+| 2026-07-01 | list_processes | YES | success | listed 307 processes |
+| 2026-07-01 | shell_command | YES | success | command produced 515 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 150 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 438 chars of output |
+| 2026-07-01 | shell_command | YES | success | command produced 147 chars of output |
+| 2026-07-01 | web_search | YES | success | query: Creality K1 vs K1 Max 3D printer API Klipper featu |
+| 2026-07-01 | session_memory | YES | saved | 8 messages |
+| 2026-07-01 | system_info | YES | success | system info retrieved |
+| 2026-07-01 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\tasks\fina_audit_reminder.md exists with 877 bytes |
+| 2026-07-01 | session_memory | YES | saved | 11 messages |
+| 2026-07-02 | file_write | YES | success | verified C:\Users\p0ly\Desktop\AI\VERA\services\Service_Package.md exists with 4834 bytes |
+| 2026-07-02 | shell_command | YES | success | command produced 0 chars of output |
+| 2026-07-02 | session_memory | YES | saved | 11 messages |
+| 2026-07-02 | list_directory | YES | success | listed 1 entries |
+| 2026-07-02 | read_file | YES | success | read 58653 chars |
+| 2026-07-02 | list_directory | YES | success | listed 8 entries |
+| 2026-07-02 | read_file | YES | success | read 462 chars |
+| 2026-07-02 | read_file | YES | success | read 180 chars |
+| 2026-07-02 | read_file | YES | success | read 31104 chars |
+| 2026-07-02 | session_memory | YES | saved | 10 messages |
+| 2026-07-02 | read_skill | YES | success | skill: uo-razor-scripting |
+| 2026-07-02 | file_write | YES | success | verified C:\Users\p0ly\Desktop\UO\Razor Scripts\MiningScripts\IronMinerTemplate.rzr exists with 4637 bytes |
+| 2026-07-02 | web_search | YES | success | query: Ultima Online Outlands best iron ore mining locati |
+| 2026-07-02 | session_memory | YES | saved | 8 messages |
+| 2026-07-02 | search_files | YES | success | found 1 matches |
+| 2026-07-02 | read_file | YES | success | read 14817 chars |
+| 2026-07-02 | search_files | YES | success | found 1 matches |
+| 2026-07-02 | read_file | YES | success | read 14817 chars |
+| 2026-07-02 | list_directory | YES | success | listed 15 entries |
+| 2026-07-02 | read_file | YES | success | read 811 chars |
+| 2026-07-02 | read_file | YES | success | read 2317 chars |

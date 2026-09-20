@@ -1,0 +1,13 @@
+﻿__pycache__/
+*.pyc
+*.bak_*
+venv/
+vera-venv/
+data/sandbox_workspace/vera_env/
+.env
+*.key
+vera.config.yaml
+memory/deliberations/
+skills/*/__pycache__/
+
+vera_actone_keys_local.py

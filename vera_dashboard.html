@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VERA Dashboard</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0a0a0a; --surface: #111111; --surface2: #1a1a1a;
+  --border: #2a2a2a; --accent: #00ff88; --accent2: #00ccff;
+  --warn: #ff9900; --danger: #ff4444; --text: #e8e8e8;
+  --muted: #888888; --font: 'Courier New', monospace;
+}
+body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 13px; line-height: 1.5; min-height: 100vh; padding: 12px; }
+.header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border: 1px solid var(--accent); margin-bottom: 12px; background: var(--surface); }
+.header-left { display: flex; align-items: center; gap: 12px; }
+.vera-name { font-size: 18px; font-weight: bold; color: var(--accent); letter-spacing: 2px; }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+.header-right { display: flex; align-items: center; gap: 16px; font-size: 11px; color: var(--muted); }
+.time { color: var(--accent2); font-size: 14px; font-weight: bold; }
+.metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 12px; }
+.metric { background: var(--surface); border: 1px solid var(--border); padding: 10px 12px; text-align: center; }
+.metric-val { font-size: 22px; font-weight: bold; color: var(--accent); line-height: 1; margin-bottom: 4px; }
+.metric-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.live-state { background: var(--surface2); border: 1px solid var(--border); padding: 8px 12px; margin-bottom: 12px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.state-item { font-size: 10px; }
+.state-label { color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+.state-val { color: var(--accent2); font-weight: bold; }
+.state-val.online { color: var(--accent); }
+.state-val.offline { color: var(--danger); }
+.state-val.thinking { color: var(--warn); }
+.main-grid { display: grid; grid-template-columns: 480px 1fr; gap: 12px; }
+.left-col { order: 2; }
+.main-grid > div:last-child { order: 1; }
+.left-col { display: flex; flex-direction: column; gap: 12px; }
+.panel { background: var(--surface); border: 1px solid var(--border); overflow: hidden; }
+.panel-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid var(--border); background: var(--surface2); }
+.panel-title { font-size: 11px; font-weight: bold; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; }
+.panel-badge { font-size: 10px; padding: 2px 6px; border-radius: 2px; font-weight: bold; }
+.badge-green { background: #003322; color: var(--accent); }
+.badge-blue { background: #001a2a; color: var(--accent2); }
+.badge-warn { background: #1a0f00; color: var(--warn); }
+.badge-red { background: #1a0000; color: var(--danger); }
+.panel-body { padding: 10px 12px; max-height: 200px; overflow-y: auto; }
+.panel-body::-webkit-scrollbar { width: 4px; }
+.panel-body::-webkit-scrollbar-thumb { background: var(--border); }
+.tool-entry { display: flex; align-items: flex-start; gap: 8px; padding: 4px 0; border-bottom: 1px solid #1a1a1a; font-size: 11px; }
+.tool-entry:last-child { border-bottom: none; }
+.tool-time { color: var(--muted); min-width: 52px; }
+.tool-name { color: var(--accent2); min-width: 110px; font-weight: bold; }
+.tool-status { font-size: 10px; padding: 1px 5px; border-radius: 2px; font-weight: bold; min-width: 60px; text-align: center; }
+.status-verified { background: #003322; color: var(--accent); }
+.status-fabricated { background: #1a0000; color: var(--danger); }
+.status-pending { background: #1a1a00; color: var(--warn); }
+.tool-detail { color: var(--muted); font-size: 10px; flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.thought-entry { padding: 4px 0 8px; border-bottom: 1px solid #1a1a1a; font-size: 11px; }
+.thought-entry:last-child { border-bottom: none; }
+.thought-role { font-size: 10px; color: var(--accent); font-weight: bold; margin-bottom: 2px; }
+.thought-text { color: var(--muted); line-height: 1.4; }
+.thought-text em { color: var(--text); font-style: normal; }
+.voice-indicator { display: flex; align-items: center; gap: 4px; padding: 6px 12px; background: var(--surface2); border-top: 1px solid var(--border); }
+.voice-bars { display: flex; align-items: flex-end; gap: 2px; height: 16px; }
+.voice-bar-item { width: 3px; background: var(--accent); border-radius: 1px; animation: voiceAnim 0.8s ease-in-out infinite; }
+.voice-bar-item:nth-child(1){height:4px;animation-delay:0s}.voice-bar-item:nth-child(2){height:10px;animation-delay:0.1s}.voice-bar-item:nth-child(3){height:16px;animation-delay:0.2s}.voice-bar-item:nth-child(4){height:8px;animation-delay:0.3s}.voice-bar-item:nth-child(5){height:12px;animation-delay:0.4s}
+@keyframes voiceAnim{0%,100%{transform:scaleY(0.4);opacity:0.5}50%{transform:scaleY(1);opacity:1}}
+.vi-label { font-size: 10px; color: var(--muted); margin-left: 6px; }
+.vi-active { color: var(--accent); }
+.alert-entry { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid #1a1a1a; font-size: 11px; }
+.alert-entry:last-child { border-bottom: none; }
+.alert-priority { font-size: 9px; font-weight: bold; padding: 2px 5px; border-radius: 2px; min-width: 42px; text-align: center; }
+.priority-high { background: #1a0000; color: var(--danger); }
+.priority-low { background: #001a0d; color: var(--accent); }
+.alert-desc { color: var(--text); flex: 1; }
+.alert-days { color: var(--muted); font-size: 10px; }
+.skill-entry { display: flex; align-items: center; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #1a1a1a; font-size: 11px; }
+.skill-entry:last-child { border-bottom: none; }
+.skill-name { color: var(--accent2); }
+.skill-status { font-size: 10px; color: var(--accent); }
+.learn-entry { padding: 4px 0 6px; border-bottom: 1px solid #1a1a1a; font-size: 11px; }
+.learn-entry:last-child { border-bottom: none; }
+.learn-topic { color: var(--accent); font-size: 10px; font-weight: bold; margin-bottom: 2px; }
+.learn-text { color: var(--muted); }
+.refresh-btn { background: none; border: 1px solid var(--accent); color: var(--accent); font-family: var(--font); font-size: 10px; padding: 2px 8px; cursor: pointer; }
+.refresh-btn:hover { background: #003322; }
+.no-data { color: var(--muted); font-size: 11px; text-align: center; padding: 16px 0; }
+
+/* ── CHAT PANEL ─────────────────────────────────────────── */
+.chat-panel { display: flex; flex-direction: column; }
+.chat-messages-wrap { height: 500px; overflow-y: auto; padding: 10px; background: var(--bg); }
+.chat-messages-wrap::-webkit-scrollbar { width: 4px; }
+.chat-messages-wrap::-webkit-scrollbar-thumb { background: var(--border); }
+.chat-messages { display: flex; flex-direction: column; gap: 10px; }
+.chat-msg { display: flex; flex-direction: column; gap: 2px; }
+.chat-msg.user { align-items: flex-end; }
+.chat-msg.assistant { align-items: flex-start; }
+.chat-bubble { max-width: 88%; padding: 8px 12px; font-size: 12px; line-height: 1.6; }
+.chat-msg.user .chat-bubble { background: #001a2a; border: 1px solid var(--accent2); color: var(--text); border-radius: 8px 8px 0 8px; }
+.chat-msg.assistant .chat-bubble { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px 8px 8px 0; }
+.chat-sender { font-size: 9px; color: var(--muted); padding: 0 4px; letter-spacing: 1px; }
+.chat-msg.user .chat-sender { color: var(--accent2); }
+.chat-msg.assistant .chat-sender { color: var(--accent); }
+.chat-thinking { display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; width: fit-content; }
+.td { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: td 1.2s infinite; }
+.td:nth-child(2){animation-delay:0.2s}.td:nth-child(3){animation-delay:0.4s}
+@keyframes td{0%,60%,100%{transform:scale(0.6);opacity:0.3}30%{transform:scale(1);opacity:1}}
+
+/* Input area */
+.chat-input-area { border-top: 1px solid var(--border); padding: 10px; background: var(--surface); display: flex; flex-direction: column; gap: 8px; }
+.chat-input-row { display: flex; gap: 6px; align-items: flex-end; }
+.chat-input { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--font); font-size: 12px; padding: 8px 10px; outline: none; resize: none; height: 38px; line-height: 1.4; border-radius: 2px; }
+.chat-input:focus { border-color: var(--accent); }
+.chat-send { background: var(--accent); color: var(--bg); border: none; font-family: var(--font); font-size: 11px; font-weight: bold; padding: 8px 14px; cursor: pointer; letter-spacing: 1px; border-radius: 2px; white-space: nowrap; height: 38px; }
+.chat-send:hover { background: #00cc66; }
+.chat-send:disabled { background: var(--muted); cursor: not-allowed; }
+
+/* Voice button */
+.mic-btn { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--border); background: var(--surface2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.2s; flex-shrink: 0; }
+.mic-btn:hover { border-color: var(--accent); }
+.mic-btn.listening { border-color: var(--danger); background: #1a0000; animation: micPulse 1s infinite; }
+.mic-btn.speaking { border-color: var(--accent); background: #003322; animation: micPulse 0.5s infinite; }
+@keyframes micPulse { 0%,100%{transform:scale(1)}50%{transform:scale(1.1)} }
+
+/* Voice mode indicator */
+.voice-mode-bar { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+.voice-toggle { background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--font); font-size: 10px; padding: 3px 8px; cursor: pointer; border-radius: 2px; }
+.voice-toggle.active { border-color: var(--accent); color: var(--accent); background: #001a0d; }
+.voice-toggle.active:hover { background: #003322; }
+.voice-status { font-size: 10px; color: var(--muted); margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.voice-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--danger); }
+.voice-dot.on { background: var(--accent); animation: pulse 2s infinite; }
+
+/* Chat controls */
+.chat-controls { display: flex; gap: 6px; align-items: center; }
+.ctrl-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--font); font-size: 10px; padding: 2px 8px; cursor: pointer; }
+.ctrl-btn:hover { border-color: var(--accent); color: var(--accent); }
+.bridge-info { margin-left: auto; font-size: 10px; color: var(--muted); }
+.exec-btn { background: #1a0f00; border: 1px solid var(--warn); color: var(--warn); font-family: var(--font); font-size: 10px; padding: 2px 8px; cursor: pointer; font-weight: bold; }
+.exec-btn:hover { background: #2a1a00; }
+.exec-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.exec-result { background: var(--bg); border: 1px solid var(--border); border-left: 2px solid var(--warn); padding: 8px; margin-top: 6px; font-size: 11px; color: var(--accent2); white-space: pre-wrap; word-break: break-word; max-height: 120px; overflow-y: auto; display: none; }
+.exec-result.visible { display: block; }
+
+.bridge-info span { color: var(--accent); }
+
+.footer { margin-top: 12px; padding: 8px 12px; border: 1px solid var(--border); background: var(--surface); display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="status-dot"></div>
+    <span class="vera-name">VERA</span>
+    <span style="color:var(--muted);font-size:11px">Verified Execution Reasoning Agent v0.6</span>
+  </div>
+  <div class="header-right">
+    <span>Operator: <span style="color:var(--accent2)">Joshua Burton</span></span>
+    <span>Model: <span style="color:var(--text)">qwen3.5:9b</span></span>
+    <span class="time" id="clock">--:--:--</span>
+  </div>
+</div>
+
+<div class="live-state">
+  <div class="state-item"><div class="state-label">Status</div><div class="state-val online" id="ls-status">LOADING</div></div>
+  <div class="state-item"><div class="state-label">Active Role</div><div class="state-val" id="ls-role">--</div></div>
+  <div class="state-item"><div class="state-label">Truth Layer</div><div class="state-val" id="ls-truth">--</div></div>
+  <div class="state-item"><div class="state-label">Current Action</div><div class="state-val thinking" id="ls-thinking" style="font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">--</div></div>
+</div>
+
+<div class="metrics">
+  <div class="metric"><div class="metric-val" id="m-verified">0</div><div class="metric-label">Verified</div></div>
+  <div class="metric"><div class="metric-val" style="color:var(--danger)" id="m-fabricated">0</div><div class="metric-label">Fabrications</div></div>
+  <div class="metric"><div class="metric-val" style="color:var(--warn)" id="m-fabrate">0%</div><div class="metric-label">Fab Rate</div></div>
+  <div class="metric"><div class="metric-val" style="color:var(--accent2)" id="m-uptime">--</div><div class="metric-label">Uptime</div></div>
+  <div class="metric"><div class="metric-val" style="color:var(--warn)">1</div><div class="metric-label">Alerts</div></div>
+</div>
+
+<div class="main-grid">
+  <div class="left-col">
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Tool Call Log</span>
+        <div style="display:flex;gap:6px">
+          <span class="panel-badge badge-green">● VERIFIED</span>
+          <button class="refresh-btn" onclick="loadLogs()">REFRESH</button>
+        </div>
+      </div>
+      <div class="panel-body" id="tool-log"><div class="no-data">Loading...</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Thinking / Role Stack</span>
+        <span class="panel-badge badge-blue" id="role-badge">● ORACLE</span>
+      </div>
+      <div class="panel-body" id="thinking-log">
+        <div class="thought-entry"><div class="thought-role">ORACLE + EXECUTOR</div><div class="thought-text">SOUL.md v3, USER.md, 4 skills, 14 tools loaded.</div></div>
+        <div class="thought-entry"><div class="thought-role">GUARDIAN</div><div class="thought-text">Ping Identity #3797290: <em>30 days idle</em>. Alert active.</div></div>
+        <div class="thought-entry"><div class="thought-role">THINKER</div><div class="thought-text">Truth layer T3. Multi-agent conductor port 8766. Bridge port 8767.</div></div>
+      </div>
+      <div class="voice-indicator">
+        <div class="voice-bars" id="vi-bars" style="opacity:0.3">
+          <div class="voice-bar-item"></div><div class="voice-bar-item"></div><div class="voice-bar-item"></div><div class="voice-bar-item"></div><div class="voice-bar-item"></div>
+        </div>
+        <span class="vi-label" id="vi-label">VOICE STANDBY</span>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Project Alerts</span><span class="panel-badge badge-warn">1 ACTIVE</span></div>
+        <div class="panel-body">
+          <div class="alert-entry"><span class="alert-priority priority-high">HIGH</span><span class="alert-desc">Ping Identity #3797290</span><span class="alert-days">30d</span></div>
+          <div class="alert-entry"><span class="alert-priority priority-low">OK</span><span class="alert-desc">VERA development</span><span class="alert-days">0d</span></div>
+          <div class="alert-entry"><span class="alert-priority priority-low">OK</span><span class="alert-desc">SNHUpers CTF lab</span><span class="alert-days">0d</span></div>
+          <div class="alert-entry"><span class="alert-priority priority-low">OK</span><span class="alert-desc">UO Razor scripts</span><span class="alert-days">0d</span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Skills & Tools</span><span class="panel-badge badge-green">14 ACTIVE</span></div>
+        <div class="panel-body">
+          <div class="skill-entry"><span class="skill-name">ctf-lab-builder</span><span class="skill-status">● LOADED</span></div>
+          <div class="skill-entry"><span class="skill-name">bug-bounty-recon</span><span class="skill-status">● LOADED</span></div>
+          <div class="skill-entry"><span class="skill-name">uo-razor-scripting</span><span class="skill-status">● LOADED</span></div>
+          <div class="skill-entry"><span class="skill-name">hardware-payload-dev</span><span class="skill-status">● LOADED</span></div>
+          <div class="skill-entry"><span class="skill-name">consequence-logger</span><span class="skill-status">● LOADED</span></div>
+          <div class="skill-entry"><span class="skill-name">fabrication-detector</span><span class="skill-status">● LOADED</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Web Learning Feed (RSS)</span>
+        <div style="display:flex;gap:6px">
+          <span class="panel-badge badge-blue">INTIGRITI ● KREBS ● PORTSWIGGER</span>
+          <button class="refresh-btn" onclick="loadLearning()">REFRESH</button>
+        </div>
+      </div>
+      <div class="panel-body" id="learning-feed" style="max-height:110px"><div class="no-data">Loading...</div></div>
+    </div>
+
+  </div>
+
+  <!-- CHAT PANEL -->
+  <div>
+    <div class="panel chat-panel">
+      <div class="panel-header">
+        <span class="panel-title">Chat with VERA</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span style="font-size:10px;color:var(--muted)" id="bridge-status-text">Checking...</span>
+          <span class="panel-badge badge-green" id="bridge-badge">● BRIDGE</span>
+        </div>
+      </div>
+
+      <div class="chat-messages-wrap" id="chat-wrap">
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-msg assistant">
+            <span class="chat-sender">VERA</span>
+            <div class="chat-bubble">Good evening Josh. Dashboard voice chat is online. You can type or use the mic button to speak. What do you need?</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <!-- Voice mode bar -->
+        <div class="voice-mode-bar">
+          <button class="voice-toggle" id="voice-toggle" onclick="toggleVoiceMode()">🎙 VOICE OFF</button>
+          <button class="voice-toggle" id="sonia-toggle" onclick="toggleSoniaReply()" style="margin-left:4px">🔊 SONIA OFF</button>
+          <div class="voice-status">
+            <div class="voice-dot" id="voice-dot"></div>
+            <span id="voice-mode-text">Voice mode: off</span>
+          </div>
+        </div>
+
+        <!-- Input row -->
+        <div class="chat-input-row">
+          <button class="mic-btn" id="mic-btn" onclick="toggleMic()" title="Hold to speak">🎤</button>
+          <textarea class="chat-input" id="chat-input" placeholder="Type message or click mic to speak..." onkeydown="handleKey(event)"></textarea>
+          <button class="chat-send" id="chat-send" onclick="sendChat()">SEND</button>
+        </div>
+
+        <!-- Controls -->
+        <div class="chat-controls">
+          <button class="ctrl-btn" onclick="clearChat()">CLEAR</button>
+          <button class="ctrl-btn" onclick="loadHistory()">HISTORY</button>
+          <button class="ctrl-btn" onclick="checkBridge()">PING</button>
+          <button class="ctrl-btn" onclick="testSonia()">TEST VOICE</button>
+          <button class="exec-btn" id="exec-btn" onclick="executeTask()">⚡ EXECUTE</button>
+          <div class="bridge-info">Bridge: <span>:8767</span></div>
+        </div>
+          <div class="exec-result" id="exec-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <div style="display:flex;gap:16px">
+    <span>HackerOne: <span style="color:var(--accent);font-weight:bold">kuliex270</span></span>
+    <span>Intigriti: <span style="color:var(--accent);font-weight:bold">p0lygl07</span></span>
+    <span>Conductor: <span style="color:var(--accent);font-weight:bold">:8766</span></span>
+    <span>Bridge: <span style="color:var(--accent);font-weight:bold">:8767</span></span>
+  </div>
+  <span id="last-refresh" style="color:var(--muted)">Last refresh: --</span>
+</div>
+
+<script>
+const BRIDGE = 'http://localhost:8767';
+let voiceModeOn = false;
+let soniaReplyOn = false;
+let isListening = false;
+let recognition = null;
+let currentAudio = null;
+
+// ── Clock ──────────────────────────────────────────────────────────────────
+function updateClock() { document.getElementById('clock').textContent = new Date().toTimeString().split(' ')[0]; }
+setInterval(updateClock, 1000); updateClock();
+
+// ── Chat helpers ───────────────────────────────────────────────────────────
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+}
+
+function escapeHtml(t) {
+  if (!t || typeof t !== 'string') return '[empty response]';
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+          .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+}
+
+function appendMsg(role, text) {
+  const safeText = (text && typeof text === 'string' && text.trim())
+    ? text : '[VERA response was empty — check bridge]';
+  const c = document.getElementById('chat-messages');
+  const d = document.createElement('div');
+  d.className = `chat-msg ${role}`;
+  const sender = role === 'user' ? 'YOU' : 'VERA';
+  d.innerHTML = `<span class="chat-sender">${sender}</span><div class="chat-bubble">${escapeHtml(safeText)}</div>`;
+  c.appendChild(d);
+  scrollChat();
+}
+
+function showThinking() {
+  const c = document.getElementById('chat-messages');
+  const d = document.createElement('div');
+  d.className = 'chat-msg assistant'; d.id = 'thinking-msg';
+  d.innerHTML = `<span class="chat-sender">VERA</span>
+    <div class="chat-thinking"><div class="td"></div><div class="td"></div><div class="td"></div></div>`;
+  c.appendChild(d); scrollChat();
+}
+function removeThinking() { const e = document.getElementById('thinking-msg'); if(e) e.remove(); }
+function scrollChat() { const c = document.getElementById('chat-wrap'); c.scrollTop = c.scrollHeight; }
+
+// ── Sonia voice playback ───────────────────────────────────────────────────
+async function playVERAVoice(text) {
+  if (!soniaReplyOn) return;
+  try {
+    // Stop any current audio
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+
+    updateVoiceBars(true, 'VERA SPEAKING');
+
+    const resp = await fetch(`${BRIDGE}/speak`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+
+    if (resp.ok) {
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      currentAudio = new Audio(url);
+      currentAudio.onended = () => { updateVoiceBars(false, 'VOICE STANDBY'); };
+      currentAudio.play();
+    } else {
+      updateVoiceBars(false, 'TTS UNAVAILABLE');
+    }
+  } catch(e) {
+    updateVoiceBars(false, 'BRIDGE OFFLINE');
+  }
+}
+
+function updateVoiceBars(active, label) {
+  const bars = document.getElementById('vi-bars');
+  const lbl = document.getElementById('vi-label');
+  bars.style.opacity = active ? '1' : '0.3';
+  lbl.textContent = label;
+  lbl.className = active ? 'vi-label vi-active' : 'vi-label';
+}
+
+async function testSonia() {
+  await playVERAVoice("VERA voice online. Sonia speaking through the dashboard.");
+}
+
+// ── Send chat ──────────────────────────────────────────────────────────────
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('chat-send');
+  const message = input.value.trim();
+  if (!message) return;
+  input.value = '';
+  sendBtn.disabled = true;
+  appendMsg('user', message);
+  showThinking();
+
+  try {
+    const resp = await fetch(`${BRIDGE}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, voice: false })
+    });
+    removeThinking();
+
+    if (!resp.ok) {
+      appendMsg('assistant', `Bridge HTTP error ${resp.status}. Is vera_bridge.py running on port 8767?`);
+      return;
+    }
+
+    const raw = await resp.text();
+    let data;
+    try { data = JSON.parse(raw); }
+    catch(e) {
+      appendMsg('assistant', `Bridge returned invalid JSON: ${raw.substring(0,80)}`);
+      return;
+    }
+
+    console.log('[VERA BRIDGE] Response:', data);
+
+    const responseText = data && (data.response || data.message || data.content);
+    if (responseText) {
+      appendMsg('assistant', responseText);
+      if (soniaReplyOn) playVERAVoice(responseText);
+    } else {
+      appendMsg('assistant', `Unexpected response format: ${JSON.stringify(data).substring(0,100)}`);
+    }
+
+  } catch(e) {
+    removeThinking();
+    console.error('[VERA BRIDGE] Error:', e);
+    appendMsg('assistant', `Bridge unreachable: ${e.message}. Run: python src/vera_bridge.py`);
+  } finally {
+    sendBtn.disabled = false;
+    input.focus();
+  }
+}
+
+// ── Voice input (browser SpeechRecognition) ────────────────────────────────
+function setupRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  const r = new SR();
+  r.continuous = false;
+  r.interimResults = true;
+  r.lang = 'en-US';
+  r.onstart = () => {
+    isListening = true;
+    document.getElementById('mic-btn').className = 'mic-btn listening';
+    updateVoiceBars(true, 'LISTENING...');
+    document.getElementById('chat-input').placeholder = 'Listening...';
+  };
+  r.onresult = (e) => {
+    const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+    document.getElementById('chat-input').value = transcript;
+    if (e.results[e.results.length - 1].isFinal) {
+      setTimeout(() => { if (document.getElementById('chat-input').value.trim()) sendChat(); }, 300);
+    }
+  };
+  r.onend = () => {
+    isListening = false;
+    document.getElementById('mic-btn').className = 'mic-btn';
+    document.getElementById('chat-input').placeholder = 'Type or click mic...';
+    updateVoiceBars(false, soniaReplyOn ? 'VOICE READY' : 'VOICE STANDBY');
+  };
+  r.onerror = (e) => {
+    isListening = false;
+    document.getElementById('mic-btn').className = 'mic-btn';
+    updateVoiceBars(false, 'MIC ERROR');
+    if (e.error === 'not-allowed') appendMsg('assistant', 'Microphone access denied. Allow mic in browser settings.');
+  };
+  return r;
+}
+
+function toggleMic() {
+  if (!voiceModeOn) {
+    appendMsg('assistant', 'Enable voice mode first using the VOICE button.');
+    return;
+  }
+  if (isListening) {
+    if (recognition) recognition.stop();
+  } else {
+    recognition = setupRecognition();
+    if (!recognition) {
+      appendMsg('assistant', 'Speech recognition not supported in this browser. Use Chrome.');
+      return;
+    }
+    recognition.start();
+  }
+}
+
+function toggleVoiceMode() {
+  voiceModeOn = !voiceModeOn;
+  const btn = document.getElementById('voice-toggle');
+  const dot = document.getElementById('voice-dot');
+  const text = document.getElementById('voice-mode-text');
+  if (voiceModeOn) {
+    btn.textContent = '🎙 VOICE ON';
+    btn.classList.add('active');
+    dot.classList.add('on');
+    text.textContent = 'Voice mode: on — click mic to speak';
+    appendMsg('assistant', 'Voice mode enabled. Click the mic button to speak, or press Enter to type.');
+  } else {
+    btn.textContent = '🎙 VOICE OFF';
+    btn.classList.remove('active');
+    dot.classList.remove('on');
+    text.textContent = 'Voice mode: off';
+    if (isListening && recognition) recognition.stop();
+  }
+}
+
+function toggleSoniaReply() {
+  soniaReplyOn = !soniaReplyOn;
+  const btn = document.getElementById('sonia-toggle');
+  if (soniaReplyOn) {
+    btn.textContent = '🔊 SONIA ON';
+    btn.classList.add('active');
+    appendMsg('assistant', 'Sonia voice replies enabled. VERA will speak her responses.');
+    playVERAVoice('Sonia voice enabled. VERA will speak all responses through the dashboard.');
+  } else {
+    btn.textContent = '🔊 SONIA OFF';
+    btn.classList.remove('active');
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  }
+}
+
+// ── Bridge & history ───────────────────────────────────────────────────────
+async function checkBridge() {
+  const badge = document.getElementById('bridge-badge');
+  const text = document.getElementById('bridge-status-text');
+  try {
+    const resp = await fetch(`${BRIDGE}/status`, { signal: AbortSignal.timeout(3000) });
+    if (resp.ok) {
+      const d = await resp.json();
+      badge.textContent = '● ONLINE';
+      badge.className = 'panel-badge badge-green';
+      text.textContent = `Ollama: ${d.ollama} | TTS: ${d.tts}`;
+    }
+  } catch(e) {
+    badge.textContent = '● OFFLINE';
+    badge.className = 'panel-badge badge-red';
+    text.textContent = 'Start: python src/vera_bridge.py';
+  }
+}
+
+async function clearChat() {
+  try { await fetch(`${BRIDGE}/clear`, { method: 'POST' }); } catch(e) {}
+  document.getElementById('chat-messages').innerHTML = `
+    <div class="chat-msg assistant">
+      <span class="chat-sender">VERA</span>
+      <div class="chat-bubble">Session cleared. Ready.</div>
+    </div>`;
+}
+
+async function loadHistory() {
+  try {
+    const resp = await fetch(`${BRIDGE}/history`);
+    if (!resp.ok) return;
+    const d = await resp.json();
+    document.getElementById('chat-messages').innerHTML = '';
+    for (const m of d.history) appendMsg(m.role === 'user' ? 'user' : 'assistant', m.content);
+  } catch(e) { appendMsg('assistant', 'Cannot load history.'); }
+}
+
+// ── Dashboard state ────────────────────────────────────────────────────────
+async function loadDashboardState() {
+  try {
+    const r = await fetch('logs/dashboard_state.json?t=' + Date.now());
+    if (!r.ok) return;
+    const s = await r.json();
+    document.getElementById('ls-status').textContent = s.status || '--';
+    document.getElementById('ls-status').className = 'state-val ' +
+      (s.status === 'ONLINE' || s.status === 'READY' ? 'online' : s.status === 'OFFLINE' ? 'offline' : 'thinking');
+    document.getElementById('ls-role').textContent = s.active_role || '--';
+    document.getElementById('ls-truth').textContent = s.truth_layer || '--';
+    document.getElementById('ls-thinking').textContent = s.thinking || s.tool_call || '--';
+    document.getElementById('m-verified').textContent = s.verified_calls || 0;
+    document.getElementById('m-fabricated').textContent = s.fabricated_calls || 0;
+    document.getElementById('m-fabrate').textContent = s.fabrication_rate || '0%';
+    document.getElementById('m-uptime').textContent = s.uptime || '--';
+    document.getElementById('role-badge').textContent = '● ' + (s.active_role || 'ORACLE');
+    if (s.thinking && s.status !== 'READY') {
+      const log = document.getElementById('thinking-log');
+      const e = document.createElement('div'); e.className = 'thought-entry';
+      e.innerHTML = `<div class="thought-role">${s.active_role||'VERA'} [${s.truth_layer||'T3'}]</div><div class="thought-text">${s.thinking}</div>`;
+      log.insertBefore(e, log.firstChild);
+      while (log.children.length > 6) log.removeChild(log.lastChild);
+    }
+  } catch(e) {}
+}
+
+function parseLog(text) {
+  return text.split('\n').filter(l => l.startsWith('|') && !l.includes('Date') && !l.includes('---'))
+    .map(l => { const p = l.split('|').map(x=>x.trim()).filter(Boolean); return p.length>=4?{date:p[0],tool:p[1],executed:p[2],result:p[3],notes:p[4]||''}:null; }).filter(Boolean);
+}
+
+async function loadLogs() {
+  try {
+    const r = await fetch('logs/execution_log.md?t='+Date.now());
+    if (!r.ok) return;
+    const entries = parseLog(await r.text());
+    const c = document.getElementById('tool-log');
+    if (!entries.length) { c.innerHTML='<div class="no-data">No tool calls yet</div>'; return; }
+    c.innerHTML = entries.slice(-15).reverse().map(e => {
+      const isV=e.executed==='YES'||e.result.includes('success');
+      const isF=e.executed==='NO'||e.result.includes('fabricated');
+      const sc=isF?'status-fabricated':isV?'status-verified':'status-pending';
+      const st=isF?'BLOCKED':isV?'VERIFIED':'PENDING';
+      const t=e.date.includes(' ')?e.date.split(' ')[1]||e.date:e.date;
+      return `<div class="tool-entry"><span class="tool-time">${t}</span><span class="tool-name">${e.tool}</span><span class="tool-status ${sc}">${st}</span><span class="tool-detail">${e.notes||e.result}</span></div>`;
+    }).join('');
+  } catch(e) {}
+  document.getElementById('last-refresh').textContent = 'Last refresh: ' + new Date().toLocaleTimeString();
+}
+
+async function loadLearning() {
+  try {
+    const r = await fetch('memory/learned_knowledge.md?t='+Date.now());
+    if (!r.ok) return;
+    const text = await r.text();
+    const c = document.getElementById('learning-feed');
+    if (!text.trim()||text.length<20) { c.innerHTML='<div class="no-data">Run vera_learn.py</div>'; return; }
+    const entries = text.split('## [').filter(Boolean).slice(-4).reverse();
+    c.innerHTML = entries.map(e => {
+      const lines=e.split('\n'); const h=lines[0]||'';
+      const content=lines.slice(1).join(' ').replace(/---/g,'').trim();
+      return `<div class="learn-entry"><div class="learn-topic">[${h.split(']')[0]}] ${h.split(']')[1]||''}</div><div class="learn-text">${content.substring(0,160)}...</div></div>`;
+    }).join('');
+  } catch(e) {}
+}
+
+
+// ── Execute via conductor ──────────────────────────────────────────────────
+async function executeTask() {
+  const input = document.getElementById('chat-input');
+  const task = input.value.trim();
+  const execBtn = document.getElementById('exec-btn');
+  const execResult = document.getElementById('exec-result');
+
+  if (!task) {
+    appendMsg('assistant', 'Type a task in the input field then click EXECUTE to route it to a sub-agent.');
+    return;
+  }
+
+  input.value = '';
+  execBtn.disabled = true;
+  execBtn.textContent = '⚡ ROUTING...';
+  execResult.className = 'exec-result';
+
+  appendMsg('user', `[EXECUTE] ${task}`);
+  showThinking();
+
+  try {
+    const resp = await fetch(`${BRIDGE}/execute`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ task })
+    });
+
+    removeThinking();
+    const data = await resp.json();
+    const target = data.target || 'sub-agent';
+
+    if (data.status === 'ok' && data.result) {
+      const preview = data.result.substring(0, 200);
+      appendMsg('assistant', `Routed to ${target}. Result preview:`);
+      execResult.textContent = data.result;
+      execResult.className = 'exec-result visible';
+      if (soniaReplyOn) playVERAVoice(`Task complete via ${target}.`);
+    } else {
+      appendMsg('assistant', `Execution error: ${data.result || data.error || 'unknown'}`);
+    }
+  } catch(e) {
+    removeThinking();
+    appendMsg('assistant', `Cannot reach bridge for execution: ${e.message}`);
+  } finally {
+    execBtn.disabled = false;
+    execBtn.textContent = '⚡ EXECUTE';
+    input.focus();
+  }
+}
+
+setInterval(loadDashboardState, 2000);
+setInterval(loadLogs, 10000);
+setInterval(loadLearning, 30000);
+setInterval(checkBridge, 15000);
+loadDashboardState(); loadLogs(); loadLearning(); checkBridge();
+</script>
+</body>
+</html>

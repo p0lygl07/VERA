@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-09-20T05:43:30.911440",
+  "status": "READY",
+  "active_role": "ORACLE",
+  "truth_layer": "T3",
+  "thinking": "Got it. So the BB-8 CAD files are sitting somewhere outside the VERA root folder. \n\nHere's what I'm thinking: **Let's create a quick reference file** that documents where those files live, then we can",
+  "tool_call": "",
+  "uptime": "0:09:29",
+  "total_calls": 16,
+  "verified_calls": 16,
+  "fabricated_calls": 0,
+  "fabrication_rate": "0.0%",
+  "avg_inference_ms": "13370ms",
+  "model": "qwen3.5:9b",
+  "voice_enabled": true
+}

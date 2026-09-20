@@ -1,0 +1,1 @@
+{"voice_enabled": true, "greeting_on_startup": false, "max_speaks_per_hour": 5, "skip_code_blocks": true, "fallback_mode": "silent_safe"}
