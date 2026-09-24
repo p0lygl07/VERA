@@ -126,3 +126,7 @@
 [2026-09-13 13:40:18] [MIC] You're runin' one. 4,009.
 
 [2026-09-13 13:40:24] [MIC] I'm gonna let her run that and see what happens
+[2026-09-22 14:34:16] [CAMERA] Vision error: 400 Client Error: Bad Request for url: http://localhost:11434/api/chat
+
+[2026-09-22 14:34:41] [MIC] DUN DUN DUN DUN DUN DUN
+[2026-09-22 14:34:54] [MIC] interesting functions.

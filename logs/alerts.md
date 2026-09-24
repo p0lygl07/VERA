@@ -483,3 +483,11 @@ Ping Identity bug bounty #3797290 has been idle for 29 days, exceeding the seven
 [HIGH] HIGH -- VERA AI development -- no git commit
    Idle: 80 days (threshold: 3 days)
    Last activity: 2026-07-02
+
+
+# VERA Proactive Alerts
+## 2026-09-22 14:31
+
+[HIGH] HIGH -- Ping Identity bug bounty report #3797290 (HackerOne)
+   Idle: 113 days (threshold: 7 days)
+   Last activity: 2026-06-01

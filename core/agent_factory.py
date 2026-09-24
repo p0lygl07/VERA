@@ -1,13 +1,21 @@
 #!/usr/bin/env python3
 """
-VERA Sub-Agent Factory Module v6
+VERA Sub-Agent Factory Module v7
 Fixes:
 - Added ntpath to authorized imports (Windows path operations)
 - max_steps=8 to prevent runaway loops and context exhaustion
 - Cleaner persona injection
+- v7: personas and the self-test block hardcoded a stale path
+  (C:\\Users\\p0ly\\Desktop\\AI\\VERA) from an earlier machine. An operative
+  actually spawned with that persona would go looking for logs and files
+  that don't exist. Now derived from this file's own location, same as
+  agent_conductor.py.
 """
 
 import os
+from pathlib import Path
+
+_VERA_ROOT = os.environ.get("VERA_ROOT_DIR", str(Path(__file__).resolve().parent.parent))
 
 try:
     from smolagents import CodeAgent, LiteLLMModel
@@ -49,8 +57,8 @@ PROFILES = {
         "persona": (
             "You are VERA's Monitor Operative. "
             "Your job: monitor log files, check ports, report system state. "
-            "VERA root: C:\\Users\\p0ly\\Desktop\\AI\\VERA\n"
-            "Log files are in: C:\\Users\\p0ly\\Desktop\\AI\\VERA\\logs\\\n"
+            f"VERA root: {_VERA_ROOT}\n"
+            f"Log files are in: {os.path.join(_VERA_ROOT, 'logs')}\\\n"
             "Use subprocess for shell commands. Be concise. "
             "Always call final_answer() with your findings."
         )
@@ -62,7 +70,7 @@ PROFILES = {
         "persona": (
             "You are VERA's SRE Engineer. "
             "Verify Python imports, fix missing dependencies, repair paths. "
-            "VERA root: C:\\Users\\p0ly\\Desktop\\AI\\VERA\n"
+            f"VERA root: {_VERA_ROOT}\n"
             "Use subprocess to run pip commands. "
             "Use pathlib.Path for file operations instead of os.path on Windows. "
             "Always call final_answer() with your report. "
@@ -176,7 +184,7 @@ class SubAgentFactory:
 
 
 if __name__ == "__main__":
-    print("VERA Sub-Agent Factory v6 -- self test")
+    print("VERA Sub-Agent Factory v7 -- self test")
     print(f"Ollama: {OLLAMA_BASE} | Model: {OLLAMA_MODEL} | Max steps: {MAX_STEPS}")
     print(f"smolagents: {'ok' if SMOLAGENTS_AVAILABLE else 'MISSING'}")
 
@@ -187,14 +195,15 @@ if __name__ == "__main__":
         print("\nBuilding sre_engineer...")
         agent = factory.create_operative("sre_engineer")
 
-        print("\nRunning test: list VERA src files via subprocess...")
+        _src_dir = os.path.join(_VERA_ROOT, "src")
+        print(f"\nRunning test: list VERA src files via subprocess...")
         result = factory.run_operative(
             agent,
-            "Use subprocess to run 'dir C:\\Users\\p0ly\\Desktop\\AI\\VERA\\src' "
+            f"Use subprocess to run 'dir {_src_dir}' "
             "and return the list of Python files found."
         )
         print(f"\nResult:\n{result}")
-        print("\n[VERA VERIFIED] Factory v6 self-test complete.")
+        print("\n[VERA VERIFIED] Factory v7 self-test complete.")
     except Exception as e:
         print(f"\nError: {e}")
         import traceback

@@ -44,3 +44,18 @@ Topics:
 Calls: 23 | Verified: 23 | Fab: 0
 Topics:
 - vera build a task wrapper for controlling BB8's LED and movement, then verify it actually works
+
+## Session: 2026-09-20 05:47 (uptime: 0:13:26)
+Calls: 16 | Verified: 16 | Fab: 0
+Topics:
+- Hey vera what are you thinking and what should we do?
+- Sound like a plan the 3d printer will be ordered monday when the SNHU excess refund lands in out acc
+- we have alot of options on choices and goals. That in mind you choose somthing.
+- look on our system i have 3d print cad files ready for our print sessions
+- yes there in a folder outside of your root folder
+
+## Session: 2026-09-22 14:39 (uptime: 0:05:57)
+Calls: 1 | Verified: 1 | Fab: 0
+Topics:
+- hey vera are you aware of your new updates
+- im going to fix the old report issue and some other things any ideals to what would help your evolut

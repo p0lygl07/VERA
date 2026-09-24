@@ -33,6 +33,26 @@ except ImportError:
     def log_outcome(*args, **kwargs):
         pass
 
+# Recursive-training system (claims KB + LoRA/DPO training + eval gate) at
+# C:\Users\P01yG107\Desktop\wxt -- see recursive_training_safety.md there
+# for why kb_* tools are gated the way they are. Degrades gracefully if the
+# module isn't present yet (e.g. an older checkout) rather than breaking
+# every other tool in this file.
+try:
+    from vera_kb_tools import KB_TOOLS, KB_TOOL_FUNCTIONS
+except ImportError:
+    KB_TOOLS = []
+    KB_TOOL_FUNCTIONS = {}
+
+# Gated self-evolution tools (review_evolution_signals / apply_evolution_proposal)
+# -- see vera_evolve_tools.py's module docstring. Replaces the old unattended
+# 5-minute auto-apply timer in vera_evolve.py v1 with Josh's explicit y/N gate.
+try:
+    from vera_evolve_tools import EVOLVE_TOOLS, EVOLVE_TOOL_FUNCTIONS
+except ImportError:
+    EVOLVE_TOOLS = []
+    EVOLVE_TOOL_FUNCTIONS = {}
+
 
 LESSONS_PATH = VERA_ROOT / "memory" / "lessons_learned.md"
 
@@ -852,6 +872,13 @@ for _name, _fn in TASK_FUNCTIONS.items():
         "parameters": {"type": "object", "properties": {}, "required": []},
     }})
 
+# kb_* tools (recursive-training system) -- see vera_kb_tools.py's own
+# module docstring for the gating rationale.
+SYSTEM_TOOLS += KB_TOOLS
+
+# Gated self-evolution tools -- see vera_evolve_tools.py's module docstring.
+SYSTEM_TOOLS += EVOLVE_TOOLS
+
 SYSTEM_TOOL_FUNCTIONS = {
     "log_lesson": tool_log_lesson,
     "send_actone_command": tool_send_actone_command,
@@ -861,4 +888,6 @@ SYSTEM_TOOL_FUNCTIONS = {
     "review_goals": tool_review_goals,
     "update_goal_status": tool_update_goal_status,
     **TASK_FUNCTIONS,
+    **KB_TOOL_FUNCTIONS,
+    **EVOLVE_TOOL_FUNCTIONS,
 }

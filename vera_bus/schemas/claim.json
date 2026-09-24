@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vera.local/schemas/claim.json",
+  "title": "Claim",
+  "description": "A belief held in the knowledge base, carrying a Beta posterior and its evidence.",
+  "type": "object",
+  "required": ["v", "kind", "id", "statement", "posterior", "gate", "ts"],
+  "additionalProperties": false,
+  "properties": {
+    "v": { "const": 1 },
+    "kind": { "const": "claim" },
+    "id": { "type": "string", "description": "Stable claim id — same statement keeps the same id across updates." },
+    "statement": { "type": "string", "minLength": 1, "description": "The proposition, in plain text." },
+    "posterior": {
+      "type": "object",
+      "required": ["alpha", "beta"],
+      "additionalProperties": false,
+      "properties": {
+        "alpha": { "type": "number", "exclusiveMinimum": 0, "description": "Beta alpha = 1 + supporting evidence mass." },
+        "beta": { "type": "number", "exclusiveMinimum": 0, "description": "Beta beta = 1 + refuting evidence mass." }
+      },
+      "description": "Belief as Beta(alpha,beta): mean=alpha/(alpha+beta), evidence mass=alpha+beta-2."
+    },
+    "gate": {
+      "type": "string",
+      "enum": ["unresolved", "contested", "established", "stale"],
+      "description": "Lifecycle gate. contested -> route to deliberation; unresolved -> recycle into training."
+    },
+    "evidence": {
+      "type": "array",
+      "description": "Evidence items folded into the posterior, kept for audit and independence-collapse.",
+      "items": {
+        "type": "object",
+        "required": ["source", "weight", "supports"],
+        "additionalProperties": false,
+        "properties": {
+          "source": { "type": "string", "description": "Where this evidence came from (a node id, a debate id, an anchor set)." },
+          "weight": { "type": "number", "minimum": 0, "description": "Evidence mass contributed (post independence-collapse)." },
+          "supports": { "type": "boolean", "description": "true adds to alpha, false adds to beta." }
+        }
+      }
+    },
+    "ts": { "type": "integer", "minimum": 0, "description": "Last update time, epoch milliseconds UTC." }
+  }
+}

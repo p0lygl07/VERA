@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vera.local/schemas/action_request.json",
+  "title": "ActionRequest",
+  "description": "A request from cognition for the action layer to do something in the world.",
+  "type": "object",
+  "required": ["v", "kind", "id", "source", "intent", "args", "sandboxed", "reversible", "ts"],
+  "additionalProperties": false,
+  "properties": {
+    "v": { "const": 1 },
+    "kind": { "const": "action_request" },
+    "id": { "type": "string", "description": "Unique request id (uuid4 hex). The matching AuditRecord echoes it." },
+    "source": { "type": "string", "pattern": "^[a-z0-9_]+(\\.[a-z0-9_]+)*$", "description": "Which cognition agent asked." },
+    "intent": { "type": "string", "minLength": 1, "description": "Verb-noun label, e.g. run_code, send_actone, move_arm." },
+    "args": { "type": "object", "description": "Intent-specific arguments. Open unless a per-intent validator is registered." },
+    "sandboxed": { "type": "boolean", "description": "Must this run inside vera_sov's sandbox? Executor refuses to run a false here without an override." },
+    "reversible": { "type": "boolean", "description": "Can the effect be undone? Irreversible actions require a passing verifier before execution." },
+    "ts": { "type": "integer", "minimum": 0 }
+  }
+}

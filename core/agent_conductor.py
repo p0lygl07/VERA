@@ -1,10 +1,20 @@
 #!/usr/bin/env python3
 """
-VERA Conductor IPC Server v1.1
+VERA Conductor IPC Server v1.2
 Uses factory.run_operative() to inject persona into sub-agent tasks.
 Port: 8766 (dashboard server uses 8765)
+
+v1.2: VERA_ROOT was hardcoded to a stale path from an earlier machine
+(C:/Users/p0ly/Desktop/AI/VERA) -- this process is launched by vera.bat on
+every startup as core\\agent_conductor.py, and the very first thing it does
+is log_conductor("STARTUP", ...), which is not wrapped in try/except, so a
+bad LOG_PATH crashed the conductor immediately after it bound its socket.
+Now derived from this file's own location (core/agent_conductor.py's
+parent's parent is VERA_ROOT), same pattern as vera_paths.py, with an env
+var escape hatch for anyone running this from somewhere unusual.
 """
 
+import os
 import socket
 import json
 import threading
@@ -12,7 +22,7 @@ import sys
 import datetime
 from pathlib import Path
 
-VERA_ROOT = Path("C:/Users/p0ly/Desktop/AI/VERA")
+VERA_ROOT = Path(os.environ.get("VERA_ROOT_DIR", str(Path(__file__).resolve().parent.parent)))
 LOG_PATH  = VERA_ROOT / "logs" / "conductor_log.md"
 
 try:

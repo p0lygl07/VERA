@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vera.local/schemas/audit_record.json",
+  "title": "AuditRecord",
+  "description": "The immutable record of an action having been attempted. The verification spine.",
+  "type": "object",
+  "required": ["v", "kind", "id", "request_id", "intent", "outcome", "ts"],
+  "additionalProperties": false,
+  "properties": {
+    "v": { "const": 1 },
+    "kind": { "const": "audit_record" },
+    "id": { "type": "string", "description": "Unique record id (uuid4 hex)." },
+    "request_id": { "type": "string", "description": "The ActionRequest.id this record accounts for." },
+    "intent": { "type": "string", "description": "Echoed from the request for standalone readability of the log." },
+    "outcome": {
+      "type": "string",
+      "enum": ["success", "failure", "refused", "timeout"],
+      "description": "refused = a guard blocked it before execution (e.g. irreversible + no verifier)."
+    },
+    "result": { "description": "Free-form result body: return value, error text, produced artifact ref. Any JSON type." },
+    "verified_by": { "type": "string", "description": "Id of the independent verifier that cleared this, if any. Absent = unverified." },
+    "ts": { "type": "integer", "minimum": 0 }
+  }
+}
